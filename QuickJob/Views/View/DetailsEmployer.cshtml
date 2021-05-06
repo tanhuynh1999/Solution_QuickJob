@@ -1,0 +1,1150 @@
+﻿@model Model.EF.User
+@using Model.EF
+@using QuickJob.Function;
+@{
+    DataQuickJobEntities db = new DataQuickJobEntities();
+    ViewBag.Title = Model.employer_company;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    List<Job> job = db.Jobs.ToList();
+
+    var fu = new FunctionController();
+}
+<section id="services">
+    @if (Model.version_id == 3 || Model.version_id == 4 || Model.version_id == 5)
+    {
+        <div class="container text-dark" style="max-width: 1600px" ng-app="myApp">
+            <div class="row" ng-controller="myCtrl">
+                <div class="col-lg-12">
+                    @if (Model.employer_banner != null)
+                    {
+                        <img height="500" src="~/Images/Employers/@Model.employer_banner" style="width: 100%" />
+                    }
+                    else
+                    {
+                        <img height="500" src="~/Images/Jobs/satisfied-job.jpg" style="width: 100%" />
+                    }
+                </div>
+                <div class="col-lg-3">
+                    <center>
+                        <img height="150" style="margin-top: -30px" src="~/Images/Employers/@Model.employer_logo" />
+                    </center>
+                </div>
+                <div class="col-lg-6">
+                    <br />
+                    <h3 class="font-weight-bold"><a class="ui red label">Tốt nhất</a>&nbsp;@Model.employer_company</h3>
+                    <b>Website: </b> <a href="/View/DetailsEmployer?id=@Model.user_id">https://localhost:44350/View/DetailsEmployer?id=@Model.user_id</a> <br />
+                    <b>Quy mô: </b> +@Model.employer_amount thành viên <br />
+                    <b>Lượt xem: </b> 0 &nbsp; <b>Lượt đánh giá: </b> 0 &nbsp; <b>Xu hướng: </b> <span class=""><i class="fa fa-arrow-alt-circle-up text-success">100</i>&nbsp;<i class="fa fa-arrow-alt-circle-down text-danger">100</i></span>
+                </div>
+                <div class="col-lg-3">
+                    <br />
+                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                </div>
+                <div class="col-lg-12 mt-5">
+
+                </div>
+                <div class="col-lg-9 border">
+                    <ul class="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Thông tin công ty</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Tuyển dụng</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Đánh giá</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                            <div style="border: 1px dashed green">
+                                <div style="padding: 10px">
+                                    <div class="ui divided selection list">
+                                        <a class="item">
+                                            <div class="ui red horizontal label">20:12 23/4/2021</div>
+                                            Đăng việc làm "kỹ sư it"
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui cards mt-3">
+                                @foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).Take(4))
+                                {
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="header">@item.job_title</div>
+                                            <div class="description">
+                                                Hạn nộp: @item.job_datedeline.Value.ToString("dd/MM/yyyy") <br />
+                                                Lương:
+                                                @if (fu.Cookie() != null)
+                                                {
+                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                }
+                                                <br />
+                                                Nghành nghề: <br />
+                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                {
+                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="ui bottom red button" onclick="window.location.href = '/View/DetailsJob?id=@item.job_id'">
+                                            Ứng tuyển
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <h5 class="mt-4">GIỚI THIỆU CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_introduce)
+                            </p>
+                            <h5 class="mt-4">TẠI SAO BẠN YÊU THÍCH CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_favourite)
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                            <div class="row justify-content-center">
+                                @if (job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).ToList().Count() == 0)
+                                {
+                                    <div class="col-lg-12">
+                                        <center>
+                                            <center>
+                                                <img src="~/Images/Jobs/none.png" />
+                                            </center>
+                                        </center>
+                                    </div>
+                                }
+                                else
+                                {
+                                    foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate))
+                                    {
+                                        <div class="col-md-4 mb-4">
+                                            <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4 @(item.User.version_id == 3 || item.User.version_id == 4  ? "border border-success" : item.User.version_id == 5 ? "border border-warning" : item.User.version_id == 6 ? "border border-danger" : "border")">
+                                                <div class="text-center text-md-start card-hover">
+                                                    <div class="row">
+                                                        <div class="col-lg-3">
+                                                            <img class="ps-3 icons" style="border-radius: 50%; width: 60px; height: 50px" src="~/Images/Employers/@item.User.employer_logo" height="60" width="60" alt="services" />
+                                                        </div>
+                                                        <div class="col-lg-9">
+                                                            <b><a class="text-dark" style="text-decoration: none" href="/View/DetailsEmployer?id=@item.user_id">@(item.User.employer_company.Length < 40 ? item.User.employer_company : item.User.employer_company.Substring(0,40) + "...")</a></b>
+                                                            <p>
+                                                                @if (fu.Cookie() != null)
+                                                                {
+                                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h6 class="fw-light fs-1 heading-color">@(item.job_title.Length < 40 ? item.job_title : item.job_title.Substring(0,40)+"...")</h6>
+                                                        <p>Cần tuyển: <b>@(item.job_amout == 0 ? "không giới hạn" : item.job_amout.ToString())</b> người và kinh nghiệm @item.Exp.exp_name</p>
+                                                        <div>
+                                                            <center>
+                                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                                {
+                                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                                }
+                                                            </center>
+                                                        </div>
+                                                        <a class="btn btn-lg ps-0 pe-3 text-primary" href="/View/DetailsJob?id=@item.job_id" role="button">
+                                                            Xem và ứng tuyển ngay
+                                                            <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    @if (Model.employer_youtube != null)
+                    {
+                        <div class="border">
+                            <p>
+                                <style>
+                                    iframe {
+                                        width: 100%;
+                                        height: 300px
+                                    }
+                                </style>
+                                @Html.Raw(Model.employer_youtube)
+                            </p>
+                        </div>
+                    }
+                    <div class="border">
+                        <center>
+                            <b>ĐÁNH GIÁ</b>
+                            <br />
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <br />
+                            (5/5)
+                        </center>
+                        <center>
+                            <div class="progress-pie-chart" data-percent="43">
+                                <div class="ppc-progress">
+                                    <div class="ppc-progress-fill"></div>
+                                </div>
+                                <div class="ppc-percents">
+                                    <div class="pcc-percents-wrapper">
+                                        <span>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                        <hr />
+                        <center>
+                            <div style="padding: 5px">
+                                <table>
+                                    <tr>
+                                        <td style="width: 60%">Tiền lương và phúc lợi</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Đào tạo và học tập</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sự quan tâm</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn hóa vui vẻ</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn phòng và thông gian làm việc</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="border mt-3">
+                        <div style="padding: 10px">
+                            <h4 class="text-danger">Top đánh giá</h4>
+                            @for (var i = 0; i < 8; i++)
+                            {
+                                <div class="mt-2" style="font-size: 20px">
+                                    "Môi trường rất tốt" <br />
+                                    <div>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                    </div>
+                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <hr />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var app = angular.module('myApp', []);
+            app.controller('myCtrl', function ($scope, $http) {
+                $http({
+                    method: "GET",
+                    url: "/Users/JsonIndexFollow?id=@Model.user_id"
+                }).then(function mySuccess(response) {
+                    $scope.list = response.data;
+                    $scope.count = $scope.list.length;
+
+                    $scope.follow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/Follow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notesavejob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+                    $scope.cancelfollow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/CancelFollow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notecanceljob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+
+                }, function myError(response) {
+                    $scope.list = response.statusText;
+                });
+            });
+        </script>
+    }
+    else if (Model.version_id == 6)
+    {
+        <div class="container text-dark" style="max-width: 1700px" ng-app="myApp">
+            <div class="row" ng-controller="myCtrl">
+                <div class="col-lg-12">
+                    @if (Model.employer_banner != null)
+                    {
+                        <img height="500" src="~/Images/Employers/@Model.employer_banner" style="width: 100%" />
+                    }
+                    else
+                    {
+                        <img height="500" src="~/Images/Jobs/satisfied-job.jpg" style="width: 100%" />
+                    }
+                </div>
+                <div class="col-lg-3">
+                    <center>
+                        <img height="150" style="margin-top: -30px" src="~/Images/Employers/@Model.employer_logo" />
+                    </center>
+                </div>
+                <div class="col-lg-6">
+                    <br />
+                    <h3 class="font-weight-bold"><a class="ui red label">Tốt nhất</a>&nbsp;@Model.employer_company</h3>
+                    <b>Website: </b> <a href="/View/DetailsEmployer?id=@Model.user_id">https://localhost:44350/View/DetailsEmployer?id=@Model.user_id</a> <br />
+                    <b>Quy mô: </b> +@Model.employer_amount thành viên <br />
+                    <b>Lượt xem: </b> 0 &nbsp; <b>Lượt đánh giá: </b> 0 &nbsp; <b>Xu hướng: </b> <span class=""><i class="fa fa-arrow-alt-circle-up text-success">100</i>&nbsp;<i class="fa fa-arrow-alt-circle-down text-danger">100</i></span>
+                </div>
+                <div class="col-lg-3">
+                    <br />
+                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                </div>
+                <div class="col-lg-12 mt-5">
+
+                </div>
+                <div class="col-lg-9 border">
+                    <ul class="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Thông tin công ty</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Tuyển dụng</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Đánh giá</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                            <div style="border: 1px dashed green">
+                                <div style="padding: 10px">
+                                    <div class="ui divided selection list">
+                                        <a class="item">
+                                            <div class="ui red horizontal label">20:12 23/4/2021</div>
+                                            Đăng việc làm "kỹ sư it"
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui cards mt-3">
+                                @foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).Take(4))
+                                {
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="header">@item.job_title</div>
+                                            <div class="description">
+                                                Hạn nộp: @item.job_datedeline.Value.ToString("dd/MM/yyyy") <br />
+                                                Lương:
+                                                @if (fu.Cookie() != null)
+                                                {
+                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                }
+                                                <br />
+                                                Nghành nghề: <br />
+                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                {
+                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="ui bottom red button" onclick="window.location.href = '/View/DetailsJob?id=@item.job_id'">
+                                            Ứng tuyển
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <h5 class="mt-4">GIỚI THIỆU CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_introduce)
+                            </p>
+                            <h5 class="mt-4">TẠI SAO BẠN YÊU THÍCH CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_favourite)
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                            <div class="row justify-content-center">
+                                @if (job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).ToList().Count() == 0)
+                                {
+                                    <div class="col-lg-12">
+                                        <center>
+                                            <center>
+                                                <img src="~/Images/Jobs/none.png" />
+                                            </center>
+                                        </center>
+                                    </div>
+                                }
+                                else
+                                {
+                                    foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate))
+                                    {
+                                        <div class="col-md-4 mb-4">
+                                            <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4 @(item.User.version_id == 3 || item.User.version_id == 4  ? "border border-success" : item.User.version_id == 5 ? "border border-warning" : item.User.version_id == 6 ? "border border-danger" : "border")">
+                                                <div class="text-center text-md-start card-hover">
+                                                    <div class="row">
+                                                        <div class="col-lg-3">
+                                                            <img class="ps-3 icons" style="border-radius: 50%; width: 60px; height: 50px" src="~/Images/Employers/@item.User.employer_logo" height="60" width="60" alt="services" />
+                                                        </div>
+                                                        <div class="col-lg-9">
+                                                            <b><a class="text-dark" style="text-decoration: none" href="/View/DetailsEmployer?id=@item.user_id">@(item.User.employer_company.Length < 40 ? item.User.employer_company : item.User.employer_company.Substring(0,40) + "...")</a></b>
+                                                            <p>
+                                                                @if (fu.Cookie() != null)
+                                                                {
+                                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h6 class="fw-light fs-1 heading-color">@(item.job_title.Length < 40 ? item.job_title : item.job_title.Substring(0,40)+"...")</h6>
+                                                        <p>Cần tuyển: <b>@(item.job_amout == 0 ? "không giới hạn" : item.job_amout.ToString())</b> người và kinh nghiệm @item.Exp.exp_name</p>
+                                                        <div>
+                                                            <center>
+                                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                                {
+                                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                                }
+                                                            </center>
+                                                        </div>
+                                                        <a class="btn btn-lg ps-0 pe-3 text-primary" href="/View/DetailsJob?id=@item.job_id" role="button">
+                                                            Xem và ứng tuyển ngay
+                                                            <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    @if (Model.employer_youtube != null)
+                    {
+                        <div class="border">
+                            <p>
+                                <style>
+                                    iframe {
+                                        width: 100%;
+                                        height: 300px
+                                    }
+                                </style>
+                                @Html.Raw(Model.employer_youtube)
+                            </p>
+                        </div>
+                    }
+                    <div class="border">
+                        <center>
+                            <b>ĐÁNH GIÁ</b>
+                            <br />
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <br />
+                            (5/5)
+                        </center>
+                        <center>
+                            <div class="progress-pie-chart" data-percent="43">
+                                <div class="ppc-progress">
+                                    <div class="ppc-progress-fill"></div>
+                                </div>
+                                <div class="ppc-percents">
+                                    <div class="pcc-percents-wrapper">
+                                        <span>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                        <hr />
+                        <center>
+                            <div style="padding: 5px">
+                                <table>
+                                    <tr>
+                                        <td style="width: 60%">Tiền lương và phúc lợi</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Đào tạo và học tập</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sự quan tâm</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn hóa vui vẻ</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn phòng và thông gian làm việc</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="border mt-3">
+                        <div style="padding: 10px">
+                            <h4 class="text-danger">Top đánh giá</h4>
+                            @for (var i = 0; i < 8; i++)
+                            {
+                                <div class="mt-2" style="font-size: 20px">
+                                    "Môi trường rất tốt" <br />
+                                    <div>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                    </div>
+                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <hr />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var app = angular.module('myApp', []);
+            app.controller('myCtrl', function ($scope, $http) {
+                $http({
+                    method: "GET",
+                    url: "/Users/JsonIndexFollow?id=@Model.user_id"
+                }).then(function mySuccess(response) {
+                    $scope.list = response.data;
+                    $scope.count = $scope.list.length;
+
+                    $scope.follow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/Follow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notesavejob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+                    $scope.cancelfollow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/CancelFollow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notecanceljob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+
+                }, function myError(response) {
+                    $scope.list = response.statusText;
+                });
+            });
+        </script>
+    }
+    else
+    {
+        <div class="container text-dark" ng-app="myApp">
+            <div class="row" ng-controller="myCtrl">
+                <div class="col-lg-12">
+                    @if (Model.employer_banner != null)
+                    {
+                        <img height="500" src="~/Images/Employers/@Model.employer_banner" style="width: 100%" />
+                    }
+                    else
+                    {
+                        <img height="500" src="~/Images/Jobs/satisfied-job.jpg" style="width: 100%" />
+                    }
+                </div>
+                <div class="col-lg-3">
+                    <center>
+                        <img height="150" style="margin-top: -30px" src="~/Images/Employers/@Model.employer_logo" />
+                    </center>
+                </div>
+                <div class="col-lg-6">
+                    <br />
+                    <h3 class="font-weight-bold"><a class="ui red label">Tốt nhất</a>&nbsp;@Model.employer_company</h3>
+                    <b>Website: </b> <a href="/View/DetailsEmployer?id=@Model.user_id">https://localhost:44350/View/DetailsEmployer?id=@Model.user_id</a> <br />
+                    <b>Quy mô: </b> +@Model.employer_amount thành viên <br />
+                    <b>Lượt xem: </b> 0 &nbsp; <b>Lượt đánh giá: </b> 0 &nbsp; <b>Xu hướng: </b> <span class=""><i class="fa fa-arrow-alt-circle-up text-success">100</i>&nbsp;<i class="fa fa-arrow-alt-circle-down text-danger">100</i></span>
+                </div>
+                <div class="col-lg-3">
+                    <br />
+                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                </div>
+                <div class="col-lg-12 mt-5">
+
+                </div>
+                <div class="col-lg-9 border">
+                    <ul class="nav nav-pills mb-3 mt-3" id="pills-tab" role="tablist">
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Thông tin công ty</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-profile-tab" data-bs-toggle="pill" data-bs-target="#pills-profile" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">Tuyển dụng</button>
+                        </li>
+                        <li class="nav-item" role="presentation">
+                            <button class="nav-link" id="pills-contact-tab" data-bs-toggle="pill" data-bs-target="#pills-contact" type="button" role="tab" aria-controls="pills-contact" aria-selected="false">Đánh giá</button>
+                        </li>
+                    </ul>
+                    <div class="tab-content" id="pills-tabContent">
+                        <div class="tab-pane fade show active" id="pills-home" role="tabpanel" aria-labelledby="pills-home-tab">
+                            <div style="border: 1px dashed green">
+                                <div style="padding: 10px">
+                                    <div class="ui divided selection list">
+                                        <a class="item">
+                                            <div class="ui red horizontal label">20:12 23/4/2021</div>
+                                            Đăng việc làm "kỹ sư it"
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="ui cards mt-3">
+                                @foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).Take(4))
+                                {
+                                    <div class="card">
+                                        <div class="content">
+                                            <div class="header">@item.job_title</div>
+                                            <div class="description">
+                                                Hạn nộp: @item.job_datedeline.Value.ToString("dd/MM/yyyy") <br />
+                                                Lương:
+                                                @if (fu.Cookie() != null)
+                                                {
+                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                }
+                                                <br />
+                                                Nghành nghề: <br />
+                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                {
+                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                }
+                                            </div>
+                                        </div>
+                                        <div class="ui bottom red button" onclick="window.location.href = '/View/DetailsJob?id=@item.job_id'">
+                                            Ứng tuyển
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                            <h5 class="mt-4">GIỚI THIỆU CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_introduce)
+                            </p>
+                            <h5 class="mt-4">TẠI SAO BẠN YÊU THÍCH CÔNG TY</h5>
+                            <p>
+                                @Html.Raw(Model.employer_favourite)
+                            </p>
+                        </div>
+                        <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+                            <div class="row justify-content-center">
+                                @if (job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate).ToList().Count() == 0)
+                                {
+                                    <div class="col-lg-12">
+                                        <center>
+                                            <center>
+                                                <img src="~/Images/Jobs/none.png" />
+                                            </center>
+                                        </center>
+                                    </div>
+                                }
+                                else
+                                {
+                                    foreach (var item in job.Where(n => n.job_active == true && n.job_option == true && n.job_bin == false && n.User.user_active == true && n.User.user_option == true && n.user_id == Model.user_id).OrderByDescending(n => n.job_datecreate))
+                                    {
+                                        <div class="col-md-4 mb-4">
+                                            <div class="card h-100 shadow px-4 px-md-2 px-lg-3 card-span pt-4 @(item.User.version_id == 3 || item.User.version_id == 4  ? "border border-success" : item.User.version_id == 5 ? "border border-warning" : item.User.version_id == 6 ? "border border-danger" : "border")">
+                                                <div class="text-center text-md-start card-hover">
+                                                    <div class="row">
+                                                        <div class="col-lg-3">
+                                                            <img class="ps-3 icons" style="border-radius: 50%; width: 60px; height: 50px" src="~/Images/Employers/@item.User.employer_logo" height="60" width="60" alt="services" />
+                                                        </div>
+                                                        <div class="col-lg-9">
+                                                            <b><a class="text-dark" style="text-decoration: none" href="/View/DetailsEmployer?id=@item.user_id">@(item.User.employer_company.Length < 40 ? item.User.employer_company : item.User.employer_company.Substring(0,40) + "...")</a></b>
+                                                            <p>
+                                                                @if (fu.Cookie() != null)
+                                                                {
+                                                                    <span class="text-danger">@item.job_textprice @item.job_paystart triệu  @item.job_payend triệu</span>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <span class="text-danger">Đăng nhập xem lương</span>
+                                                                }
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <div class="card-body">
+                                                        <h6 class="fw-light fs-1 heading-color">@(item.job_title.Length < 40 ? item.job_title : item.job_title.Substring(0,40)+"...")</h6>
+                                                        <p>Cần tuyển: <b>@(item.job_amout == 0 ? "không giới hạn" : item.job_amout.ToString())</b> người và kinh nghiệm @item.Exp.exp_name</p>
+                                                        <div>
+                                                            <center>
+                                                                @foreach (var item2 in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == item.job_id).Take(3))
+                                                                {
+                                                                    <button style="font-size: 10px" class="ui primary basic button mt-1">@item2.Category.cate_name</button>
+                                                                }
+                                                            </center>
+                                                        </div>
+                                                        <a class="btn btn-lg ps-0 pe-3 text-primary" href="/View/DetailsJob?id=@item.job_id" role="button">
+                                                            Xem và ứng tuyển ngay
+                                                            <svg class="bi bi-arrow-right-short" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="currentColor" viewBox="0 0 16 16">
+                                                                <path fill-rule="evenodd" d="M4 8a.5.5 0 0 1 .5-.5h5.793L8.146 5.354a.5.5 0 1 1 .708-.708l3 3a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L10.293 8.5H4.5A.5.5 0 0 1 4 8z"></path>
+                                                            </svg>
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                    </div>
+                </div>
+                <div class="col-lg-3">
+                    @if (Model.employer_youtube != null)
+                    {
+                        <div class="border">
+                            <p>
+                                <style>
+                                    iframe {
+                                        width: 100%;
+                                        height: 300px
+                                    }
+                                </style>
+                                @Html.Raw(Model.employer_youtube)
+                            </p>
+                        </div>
+                    }
+                    <div class="border">
+                        <center>
+                            <b>ĐÁNH GIÁ</b>
+                            <br />
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <i class="fa fa-star"></i>
+                            <br />
+                            (5/5)
+                        </center>
+                        <center>
+                            <div class="progress-pie-chart" data-percent="43">
+                                <div class="ppc-progress">
+                                    <div class="ppc-progress-fill"></div>
+                                </div>
+                                <div class="ppc-percents">
+                                    <div class="pcc-percents-wrapper">
+                                        <span>%</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                        <hr />
+                        <center>
+                            <div style="padding: 5px">
+                                <table>
+                                    <tr>
+                                        <td style="width: 60%">Tiền lương và phúc lợi</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Đào tạo và học tập</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Sự quan tâm</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn hóa vui vẻ</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Văn phòng và thông gian làm việc</td>
+                                        <td>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                            <i class="fa fa-star"></i>
+                                        </td>
+                                        <td>5</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </center>
+                    </div>
+                    <div class="border mt-3">
+                        <div style="padding: 10px">
+                            <h4 class="text-danger">Top đánh giá</h4>
+                            @for (var i = 0; i < 8; i++)
+                            {
+                                <div class="mt-2" style="font-size: 20px">
+                                    "Môi trường rất tốt" <br />
+                                    <div>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                    </div>
+                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <hr />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            var app = angular.module('myApp', []);
+            app.controller('myCtrl', function ($scope, $http) {
+                $http({
+                    method: "GET",
+                    url: "/Users/JsonIndexFollow?id=@Model.user_id"
+                }).then(function mySuccess(response) {
+                    $scope.list = response.data;
+                    $scope.count = $scope.list.length;
+
+                    $scope.follow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/Follow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notesavejob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+                    $scope.cancelfollow = function (id) {
+                        $http({
+                            method: "GET",
+                            url: "/Users/CancelFollow?id=" + id
+                        }).then(function mySuccess(response) {
+                            $scope.list = response.data;
+                            $scope.count = $scope.list.length;
+
+                            $(document).ready(function () {
+                                $('#notecanceljob').modal('show');
+                            })
+
+                        }, function myError(response) {
+                            $scope.list = response.statusText;
+                        });
+                    }
+
+
+                }, function myError(response) {
+                    $scope.list = response.statusText;
+                });
+            });
+        </script>
+    }
+</section>
+
+<script>
+    $('.view.ui.rating')
+        .rating({
+            interactive: false
+        })
+        ;
+</script>
+<style>
+    .progress-pie-chart {
+        width: 200px;
+        height: 200px;
+        border-radius: 50%;
+        background-color: #E5E5E5;
+        position: relative;
+    }
+
+        .progress-pie-chart.gt-50 {
+            background-color: #81CE97;
+        }
+
+    .ppc-progress {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        left: calc(50% - 100px);
+        top: calc(50% - 100px);
+        width: 200px;
+        height: 200px;
+        clip: rect(0, 200px, 200px, 100px);
+    }
+
+        .ppc-progress .ppc-progress-fill {
+            content: "";
+            position: absolute;
+            border-radius: 50%;
+            left: calc(50% - 100px);
+            top: calc(50% - 100px);
+            width: 200px;
+            height: 200px;
+            clip: rect(0, 100px, 200px, 0);
+            background: #81CE97;
+            transform: rotate(60deg);
+        }
+
+    .gt-50 .ppc-progress {
+        clip: rect(0, 100px, 200px, 0);
+    }
+
+        .gt-50 .ppc-progress .ppc-progress-fill {
+            clip: rect(0, 200px, 200px, 100px);
+            background: #E5E5E5;
+        }
+
+    .ppc-percents {
+        content: "";
+        position: absolute;
+        border-radius: 50%;
+        left: calc(50% - 86.9565217391px);
+        top: calc(50% - 86.9565217391px);
+        width: 173.9130434783px;
+        height: 173.9130434783px;
+        background: #fff;
+        text-align: center;
+        display: table;
+    }
+
+        .ppc-percents span {
+            display: block;
+            font-size: 2.6em;
+            font-weight: bold;
+            color: #81CE97;
+        }
+
+    .pcc-percents-wrapper {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+
+    .progress-pie-chart {
+        margin: 50px auto 0;
+    }
+</style>
+<script>
+    $(function () {
+        var $ppc = $('.progress-pie-chart'),
+            percent = parseInt($ppc.data('percent')),
+            deg = 360 * percent / 100;
+        if (percent > 50) {
+            $ppc.addClass('gt-50');
+        }
+        $('.ppc-progress-fill').css('transform', 'rotate(' + deg + 'deg)');
+        $('.ppc-percents span').html(percent + '%');
+    });
+</script>
+<div class="modal fade" id="notesavejob" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-success" id="exampleModalLabel">Theo dõi thành công</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                Bạn đã theo dõi "@Model.employer_company" thành công! <br /> Xem quản lý <a href="/Users/IndexFollowAll">tại đây</a>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="notecanceljob" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="exampleModalLabel">Hủy theo dõi hành công</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-dark">
+                Bạn đã hủy theo dõi "@Model.employer_company" thành công! <br />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+            </div>
+        </div>
+    </div>
+</div>
