@@ -20,6 +20,13 @@ namespace QuickJob.Areas.Admin.Controllers
             var cvs = db.Cvs.Include(c => c.Theme).Include(c => c.User);
             return View(cvs.Where(t => t.cv_bin == false).ToList());
         }
+        public JsonResult ChangeOption(int? id)
+        {
+            var option = db.Cvs.Find(id).cv_option;
+            db.Cvs.Find(id).cv_option = !option;
+            db.SaveChanges();
+            return Json(!option, JsonRequestBehavior.AllowGet);
+        }
 
         // GET: Admin/CvsAdmin/Details/5
         public ActionResult Details(int? id)

@@ -53,11 +53,11 @@
                                     <b>Giới tính: </b>@(item.job_sex == true ? "Name" : "Nữ") <br />
                                     <b>Số lượng: </b>@item.job_amout <br />
                                 </td>*@
-                            <td>
-                                <span class="badge @(item.job_active == true ? "bg-success" : "bg-danger")">@(item.job_active == true ? "Hoạt động" : "Ngừng")</span>
+                            <td id="inneractive-@item.job_id">
+                                <span class="badge @(item.job_active == true ? "bg-success" : "bg-danger")" onclick="changeActive(@item.job_id)">@(item.job_active == true ? "Hoạt động" : "Ngừng")</span>
                             </td>
-                            <td>
-                                <span class="badge @(item.job_option == true ? "bg-success" : "bg-danger")">@(item.job_option == true ? "Hiển thị" : "Tắt")</span>
+                            <td id="inneroption-@item.job_id">
+                                <span class="badge @(item.job_option == true ? "bg-success" : "bg-danger")" onclick="changeOption(@item.job_id)">@(item.job_option == true ? "Hiển thị" : "Tắt")</span>
                             </td>
                             <td>@item.job_datedeline</td>
                             <td>@(item.job_dateupdate != null ? item.job_dateupdate.Value.ToLongDateString() : item.job_datecreate.Value.ToLongDateString())</td>
@@ -99,6 +99,42 @@
                 }
                 else {
                     alert("Có lỗi ngoại lệ!");
+                }
+            }
+        })
+    }
+</script>
+
+<script>
+    function changeActive(id) {
+        $.ajax({
+            type: "POST",
+            url: "/Admin/JobsAdmin/ChangeActive?id=" + id,
+            contentType: "json",
+            success: function (response) {
+                if (response) {
+                    document.getElementById("inneractive-" + id).innerHTML = '<span class="badge bg-success" onclick="changeActive(' + id + ')">Hoạt động</span>'
+                }
+                else {
+                    document.getElementById("inneractive-" + id).innerHTML = '<span class="badge bg-danger" onclick="changeActive(' + id + ')">Ngừng</span>'
+                }
+            }
+        })
+    }
+</script>
+
+<script>
+    function changeOption(id) {
+        $.ajax({
+            type: "POST",
+            url: "/Admin/JobsAdmin/ChangeOption?id=" + id,
+            contentType: "json",
+            success: function (response) {
+                if (response) {
+                    document.getElementById("inneroption-" + id).innerHTML = '<span class="badge bg-success" onclick="changeOption(' + id + ')">Hiển thị</span>'
+                }
+                else {
+                    document.getElementById("inneroption-" + id).innerHTML = '<span class="badge bg-danger" onclick="changeOption(' + id + ')">Tắt</span>'
                 }
             }
         })

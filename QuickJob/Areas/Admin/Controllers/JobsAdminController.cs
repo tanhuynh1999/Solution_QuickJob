@@ -22,6 +22,22 @@ namespace QuickJob.Areas.Admin.Controllers
             return View(jobs.Where(t => t.job_bin == false).ToList());
         }
 
+        public JsonResult ChangeActive(int? id)
+        {
+            var active = db.Jobs.Find(id).job_active;
+            db.Jobs.Find(id).job_active = !active;
+            db.SaveChanges();
+            return Json(!active, JsonRequestBehavior.AllowGet);
+        }
+        public JsonResult ChangeOption(int? id)
+        {
+            var option = db.Jobs.Find(id).job_option;
+            db.Jobs.Find(id).job_option = !option;
+            db.SaveChanges();
+            return Json(!option, JsonRequestBehavior.AllowGet);
+        }
+
+
         // GET: Admin/JobsAdmin/Details/5
         public ActionResult Details(int? id)
         {

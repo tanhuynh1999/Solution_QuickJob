@@ -31,7 +31,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach (var item in Model.OrderByDescending(n=>n.cv_datebirth))
+                    @foreach (var item in Model.OrderByDescending(n => n.cv_datebirth))
                     {
                         <tr>
                             <td>@item.cv_id</td>
@@ -47,11 +47,11 @@
                                     <b>Giới tính: </b>@(item.job_sex == true ? "Name" : "Nữ") <br />
                                     <b>Số lượng: </b>@item.job_amout <br />
                                 </td>*@
-                            <td>
-                                <span class="badge @(item.cv_active == 1 ? "bg-success" : "bg-danger")">@(item.cv_active == 1 ? "Hoạt động" : "Ngưng")</span>
+                            <td id="inneractive-@item.cv_id">
+                                <span class="badge @(item.cv_active == 1 ? "bg-success" : "bg-danger")" onclick="changeActive(@item.cv_id)">@(item.cv_active == 1 ? "Hoạt động" : "Ngưng")</span>
                             </td>
-                            <td>
-                                <span class="badge @(item.cv_option == true ? "bg-success" : "bg-danger")">@(item.cv_option == true ? "Hiển thị" : "Tắt")</span>
+                            <td id="inneroption-@item.cv_id">
+                                <span class="badge @(item.cv_option == true ? "bg-success" : "bg-danger")" onclick="changeOption(@item.cv_id)">@(item.cv_option == true ? "Hiển thị" : "Tắt")</span>
                             </td>
                             <td>@(item.cv_dateupdate != null ? item.cv_dateupdate.Value.ToLongDateString() : item.cv_datecreate.Value.ToLongDateString())</td>
                             <td>
@@ -91,6 +91,25 @@
                 }
                 else {
                     alert("Có lỗi ngoại lệ!");
+                }
+            }
+        })
+    }
+</script>
+
+
+<script>
+    function changeOption(id) {
+        $.ajax({
+            type: "POST",
+            url: "/Admin/CvsAdmin/ChangeOption?id=" + id,
+            contentType: "json",
+            success: function (response) {
+                if (response) {
+                    document.getElementById("inneroption-" + id).innerHTML = '<span class="badge bg-success" onclick="changeOption(' + id + ')">Hiển thị</span>'
+                }
+                else {
+                    document.getElementById("inneroption-" + id).innerHTML = '<span class="badge bg-danger" onclick="changeOption(' + id + ')">Tắt</span>'
                 }
             }
         })
