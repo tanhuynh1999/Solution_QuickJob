@@ -80,84 +80,92 @@ namespace QuickJob.Areas.Employer.Controllers
             JObject jmessage = JObject.Parse(responseFromMomo);
 
 
-            TempData["pakeid"] = id;
+            Session["pakeid"] = id;
 
             return Redirect(jmessage.GetValue("payUrl").ToString());
         }
         public ActionResult ReturnUrl(int errorCode, int amount)
         {
-            var coo = new FunctionController();
-            var idus = coo.CookieIDEm();
-
-            User us = db.Users.Find(idus.user_id);
-
-            int pake = Int32.Parse(TempData["pakeid"].ToString());
-            Pakage pakege = db.Pakages.Find(pake);
-
-            if (errorCode.Equals(0))
+            if(Session["pakeid"] == null)
             {
-                ViewBag.Note = "Thanh toán thành công";
-
-                if (pakege.pakage_id == 11)
-                {
-                    us.employer_amoutjob = 30;
-                    us.version_id = Common.Common.VER_EM_CC1;
-                    us.user_deadline = DateTime.Now.AddMonths(1);
-                }
-                else if (pakege.pakage_id == 12)
-                {
-                    us.employer_amoutjob = 50;
-                    us.version_id = Common.Common.VER_EM_CC2;
-                    us.user_deadline = DateTime.Now.AddMonths(1);
-                }
-                else if (pakege.pakage_id == 13)
-                {
-                    us.employer_amoutjob = 80;
-                    us.version_id = Common.Common.VER_EM_PRO;
-                    us.user_deadline = DateTime.Now.AddMonths(1);
-                }
-                else if (pakege.pakage_id == 14)
-                {
-                    us.employer_amoutjob = 120;
-                    us.version_id = Common.Common.VER_EM_MAX;
-                    us.user_deadline = DateTime.Now.AddMonths(1);
-                }
-                else
-                {
-                    us.user_active = false;
-                }
-
-                Bill bill = new Bill
-                {
-                    bill_active = true,
-                    bill_datecreate = DateTime.Now,
-                    bill_dealine = DateTime.Now.AddMonths(1),
-                    bill_sum = amount,
-                    user_id = us.user_id,
-                    pakege_id = pake
-                };
-                db.Bills.Add(bill);
-                db.SaveChanges();
-
                 return RedirectToAction("HistoryPay");
             }
             else
             {
-                ViewBag.Note = "Thanh toán thất bại";
+                var coo = new FunctionController();
+                var idus = coo.CookieIDEm();
 
-                Bill bill = new Bill
+                User us = db.Users.Find(idus.user_id);
+
+                int pake = Int32.Parse(Session["pakeid"].ToString());
+                Pakage pakege = db.Pakages.Find(pake);
+
+                if (errorCode.Equals(0))
                 {
-                    bill_active = false,
-                    bill_datecreate = DateTime.Now,
-                    bill_dealine = DateTime.Now,
-                    bill_sum = amount,
-                    user_id = us.user_id,
-                    pakege_id = pake
-                };
-                db.Bills.Add(bill);
+                    ViewBag.Note = "Thanh toán thành công";
 
-                db.SaveChanges();
-                return RedirectToAction("HistoryPay");
+                    if (pakege.pakage_id == 11)
+                    {
+                        us.employer_amoutjob = 30;
+                        us.version_id = Common.Common.VER_EM_CC1;
+                        us.user_deadline = DateTime.Now.AddMonths(1);
+                    }
+                    else if (pakege.pakage_id == 12)
+                    {
+                        us.employer_amoutjob = 50;
+                        us.version_id = Common.Common.VER_EM_CC2;
+                        us.user_deadline = DateTime.Now.AddMonths(1);
+                    }
+                    else if (pakege.pakage_id == 13)
+                    {
+                        us.employer_amoutjob = 80;
+                        us.version_id = Common.Common.VER_EM_PRO;
+                        us.user_deadline = DateTime.Now.AddMonths(1);
+                    }
+                    else if (pakege.pakage_id == 14)
+                    {
+                        us.employer_amoutjob = 120;
+                        us.version_id = Common.Common.VER_EM_MAX;
+                        us.user_deadline = DateTime.Now.AddMonths(1);
+                    }
+                    else
+                    {
+                        us.user_active = false;
+                    }
+
+                    Bill bill = new Bill
+                    {
+                        bill_active = true,
+                        bill_datecreate = DateTime.Now,
+                        bill_dealine = DateTime.Now.AddMonths(1),
+                        bill_sum = amount,
+                        user_id = us.user_id,
+                        pakege_id = pake
+                    };
+                    db.Bills.Add(bill);
+                    db.SaveChanges();
+                    Session["pakeid"] = null;
+                    return RedirectToAction("HistoryPay");
+                }
+                else
+                {
+                    ViewBag.Note = "Thanh toán thất bại";
+
+                    Bill bill = new Bill
+                    {
+                        bill_active = false,
+                        bill_datecreate = DateTime.Now,
+                        bill_dealine = DateTime.Now,
+                        bill_sum = amount,
+                        user_id = us.user_id,
+                        pakege_id = pake
+                    };
+                    db.Bills.Add(bill);
+
+                    db.SaveChanges();
+                    Session["pakeid"] = null;
+                    return RedirectToAction("HistoryPay");
+                }
             }
         }
         public ActionResult HistoryPay()
@@ -165,6 +173,7 @@ namespace QuickJob.Areas.Employer.Controllers
             var coo = new FunctionController();
             var id = coo.CookieIDEm();
 
+            Session["pakeid"] = null;
 
             return View(db.Bills.Where(n => n.user_id == id.user_id).OrderByDescending(n => n.bill_datecreate).ToList());
         }

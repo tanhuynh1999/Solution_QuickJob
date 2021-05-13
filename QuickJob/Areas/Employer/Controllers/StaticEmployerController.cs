@@ -22,16 +22,14 @@ namespace QuickJob.Areas.Employer.Controllers
         // GET: Employer/StaticEmployer
         private List<ST> GetUsers()
         {
-            var monthdate = DateTime.Now.AddDays(30);
-            var daydate = DateTime.Now;
 
             var list = new List<ST>
             {
                 new ST
                 {
                     CandidateAll = db.Cvs.Count(),
-                    CandidateMonth = db.Cvs.Where(n => n.cv_datecreate.Value < monthdate).Count(),
-                    CandidateDay = db.Cvs.Where(n => n.cv_datecreate.Value == daydate).ToList().Count()
+                    CandidateMonth = db.Cvs.Where(n => n.cv_datecreate < n.cv_datecreate.Value.AddMonths(1)).Count(),
+                    CandidateDay = db.Cvs.Where(n => n.cv_datecreate.Value.ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy")).ToList().Count()
                 }
             };
 

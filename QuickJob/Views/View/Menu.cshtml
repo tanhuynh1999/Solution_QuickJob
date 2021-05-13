@@ -1,6 +1,9 @@
-﻿@using QuickJob.Function;
+﻿@using Model.EF;
+@using QuickJob.Function;
 @{ 
+    DataQuickJobEntities db = new DataQuickJobEntities();
     var fu = new FunctionController();
+
 }
 <nav class="navbar navbar-expand-lg navbar-light fixed-top py-3" data-navbar-on-scroll="data-navbar-on-scroll">
     <div class="container">
@@ -24,7 +27,7 @@
                         <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                             <li><a class="dropdown-item" href="#">@id.user_name</a></li>
                             <li><a class="dropdown-item" href="#">Mã ứng viên: #27121999</a></li>
-                            <li><a class="dropdown-item" href="#">Số CV: 0/3</a></li>
+                            <li><a class="dropdown-item" href="#">Số CV: @db.Cvs.Where(n=>n.user_id == id.user_id).Count()/@id.candidate_amoutcv</a></li>
                             <li><hr /></li>
                             <li><a class="dropdown-item text-dark" href="/Users/MyInfo?id=@id.user_id"><i class="fa fa-user">&nbsp;</i>Thông tin cá nhân</a></li>
                             <li><a class="dropdown-item text-dark" href="/Cvs/IndexCvs"><i class="fa fa-address-book">&nbsp;</i>Quản lý CV</a></li>

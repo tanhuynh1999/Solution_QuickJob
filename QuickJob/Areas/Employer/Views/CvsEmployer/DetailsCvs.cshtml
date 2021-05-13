@@ -27,7 +27,7 @@
     <div class="container">
         @if (Model.theme_id == 1)
         {
-            <div class="card-content">
+            <div class="card-content canvas_div_pdf">
                 <div class="card-body arial" style="font-family: @Model.cv_f">
                     <div class="card-text container border  f15" style="font-size: @Model.cv_fontsize@px !important">
                         <div class="row hv1">
@@ -287,7 +287,7 @@
         }
         else if (Model.theme_id == 2)
         {
-            <section id="global-settings" class="card">
+            <section id="global-settings canvas_div_pdf" class="card">
                 <div class="card-content">
                     <div class="card-body arial" style="font-family: @Model.cv_f">
                         <div class="card-text container border shadow f15" style="font-size:@Model.cv_fontsize@px">
@@ -519,7 +519,7 @@
         }
         else if (Model.theme_id == 3)
         {
-            <section id="global-settings" class="card">
+            <section id="global-settings canvas_div_pdf" class="card">
                 <div class="card-content">
                     <div class="card-body arial" id="f">
                         <div class="card-text border shadow f15" id="size">
@@ -791,7 +791,7 @@
                     color: @Model.cv_bg;
                 }
             </style>
-            <div id="global-settings" class="">
+            <div id="global-settings canvas_div_pdf" class="">
                 <div class="">
                     <div style="font-family: @Model.cv_f">
                         <div class="border shadow f15" id="size">
@@ -1029,7 +1029,7 @@
                     color: white;
                 }
             </style>
-            <section id="global-settings" class="card">
+            <section id="global-settings canvas_div_pdf" class="card">
                 <div class="card-content">
                     <div class="card-body arial" id="f">
                         <div class="card-text border shadow f15" id="size">
@@ -1286,7 +1286,7 @@
                         <a href="#" class="ui red button w-100 mt-2">Theo dõi</a>
                     </div>
                     <div class="col-lg-2">
-                        <a href="#" class="ui red button w-100 mt-2">Tải CV PDF</a>
+                        <a onclick="getPDF()" class="ui red button w-100 mt-2">Tải CV PDF</a>
                     </div>
                     <div class="col-lg-2">
                         <a href="#" class="ui red button w-100 mt-2">Báo cáo</a>
@@ -1750,3 +1750,38 @@
         color: #48b0f7 !important
     }
 </style>
+
+<script>
+    function getPDF() {
+
+        var HTML_Width = $(".canvas_div_pdf").width();
+        var HTML_Height = $(".canvas_div_pdf").height();
+        var top_left_margin = 15;
+        var PDF_Width = HTML_Width + (top_left_margin * 2);
+        var PDF_Height = (PDF_Width * 1.5) + (top_left_margin * 2);
+        var canvas_image_width = HTML_Width;
+        var canvas_image_height = HTML_Height;
+
+        var totalPDFPages = Math.ceil(HTML_Height / PDF_Height) - 1;
+
+
+        html2canvas($(".canvas_div_pdf")[0], { allowTaint: true }).then(function (canvas) {
+            canvas.getContext('2d');
+
+            console.log(canvas.height + "  " + canvas.width);
+
+
+            var imgData = canvas.toDataURL("image/jpeg", 1.0);
+            var pdf = new jsPDF('p', 'pt', [PDF_Width, PDF_Height]);
+            pdf.addImage(imgData, 'JPG', top_left_margin, top_left_margin, canvas_image_width, canvas_image_height);
+
+
+            for (var i = 1; i <= totalPDFPages; i++) {
+                pdf.addPage(PDF_Width, PDF_Height);
+                pdf.addImage(imgData, 'JPG', top_left_margin, -(PDF_Height * i) + (top_left_margin * 4), canvas_image_width, canvas_image_height);
+            }
+
+            pdf.save("HTML-Document.pdf");
+        });
+    };
+</script>

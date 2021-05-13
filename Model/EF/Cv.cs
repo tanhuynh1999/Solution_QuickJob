@@ -52,6 +52,8 @@ namespace Model.EF
         public Nullable<int> theme_id { get; set; }
         public string cv_addpress { get; set; }
         public string cv_f { get; set; }
+        public string cv_pass { get; set; }
+        public Nullable<int> cv_submitkey { get; set; }
     
         public virtual Theme Theme { get; set; }
         public virtual User User { get; set; }

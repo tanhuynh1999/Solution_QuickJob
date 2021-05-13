@@ -74,6 +74,8 @@
           <Property Name="theme_id" Type="int" />
           <Property Name="cv_addpress" Type="nvarchar" MaxLength="30" />
           <Property Name="cv_f" Type="nvarchar" MaxLength="100" />
+          <Property Name="cv_pass" Type="nvarchar(max)" />
+          <Property Name="cv_submitkey" Type="int" />
         </EntityType>
         <EntityType Name="Exps">
           <Key>
@@ -180,6 +182,28 @@
           </Key>
           <Property Name="provice_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="provice_name" Type="nvarchar" MaxLength="1000" />
+        </EntityType>
+        <EntityType Name="Ratings">
+          <Key>
+            <PropertyRef Name="rating_id" />
+          </Key>
+          <Property Name="rating_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="user_id" Type="int" />
+          <Property Name="idem" Type="int" />
+          <Property Name="rating_datecreate" Type="datetime" />
+          <Property Name="rating_sum" Type="int" />
+          <Property Name="rating_title" Type="nvarchar(max)" />
+          <Property Name="rating_like" Type="nvarchar(max)" />
+          <Property Name="rating_improve" Type="nvarchar(max)" />
+          <Property Name="rating_ltpl" Type="int" />
+          <Property Name="rating_dthh" Type="int" />
+          <Property Name="rating_sqtdnv" Type="int" />
+          <Property Name="rating_vhct" Type="int" />
+          <Property Name="rating_vplv" Type="int" />
+          <Property Name="rating_intro" Type="bit" />
+          <Property Name="rating_level" Type="bit" />
+          <Property Name="rating_satisfied" Type="nvarchar(max)" />
+          <Property Name="rating_unsatisfied" Type="nvarchar(max)" />
         </EntityType>
         <EntityType Name="Roles">
           <Key>
@@ -479,6 +503,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_Ratings_Users">
+          <End Role="Users" Type="Self.Users" Multiplicity="0..1" />
+          <End Role="Ratings" Type="Self.Ratings" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Users">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="Ratings">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_SubmitCv_Cvs">
           <End Role="Cvs" Type="Self.Cvs" Multiplicity="0..1" />
           <End Role="SubmitCv" Type="Self.SubmitCv" Multiplicity="*" />
@@ -635,6 +671,7 @@
           <EntitySet Name="News" EntityType="Self.News" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Pakages" EntityType="Self.Pakages" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Provices" EntityType="Self.Provices" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Ratings" EntityType="Self.Ratings" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="Roles" EntityType="Self.Roles" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SubmitCv" EntityType="Self.SubmitCv" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="SubmitJob" EntityType="Self.SubmitJob" Schema="dbo" store:Type="Tables" />
@@ -702,6 +739,10 @@
             <End Role="Roles" EntitySet="Roles" />
             <End Role="Pakages" EntitySet="Pakages" />
           </AssociationSet>
+          <AssociationSet Name="FK_Ratings_Users" Association="Self.FK_Ratings_Users">
+            <End Role="Users" EntitySet="Users" />
+            <End Role="Ratings" EntitySet="Ratings" />
+          </AssociationSet>
           <AssociationSet Name="FK_SubmitCv_Cvs" Association="Self.FK_SubmitCv_Cvs">
             <End Role="Cvs" EntitySet="Cvs" />
             <End Role="SubmitCv" EntitySet="SubmitCv" />
@@ -764,12 +805,12 @@
           <EntitySet Name="Groups" EntityType="DataQuickJobModel.Group" />
           <EntitySet Name="ItemCvs" EntityType="DataQuickJobModel.ItemCv" />
           <EntitySet Name="Jobs" EntityType="DataQuickJobModel.Job" />
+          <EntitySet Name="News" EntityType="DataQuickJobModel.News" />
           <EntitySet Name="Pakages" EntityType="DataQuickJobModel.Pakage" />
           <EntitySet Name="Provices" EntityType="DataQuickJobModel.Provice" />
           <EntitySet Name="Roles" EntityType="DataQuickJobModel.Role" />
           <EntitySet Name="SubmitCvs" EntityType="DataQuickJobModel.SubmitCv" />
           <EntitySet Name="SubmitJobs" EntityType="DataQuickJobModel.SubmitJob" />
-          <EntitySet Name="sysdiagrams" EntityType="DataQuickJobModel.sysdiagram" />
           <EntitySet Name="Themes" EntityType="DataQuickJobModel.Theme" />
           <EntitySet Name="TypeJobs" EntityType="DataQuickJobModel.TypeJob" />
           <EntitySet Name="Users" EntityType="DataQuickJobModel.User" />
@@ -845,6 +886,10 @@
             <End Role="Job" EntitySet="Jobs" />
             <End Role="SubmitJob" EntitySet="SubmitJobs" />
           </AssociationSet>
+          <AssociationSet Name="FK_News_Users" Association="DataQuickJobModel.FK_News_Users">
+            <End Role="User" EntitySet="Users" />
+            <End Role="News" EntitySet="News" />
+          </AssociationSet>
           <AssociationSet Name="FK_Pakages_Roles" Association="DataQuickJobModel.FK_Pakages_Roles">
             <End Role="Role" EntitySet="Roles" />
             <End Role="Pakage" EntitySet="Pakages" />
@@ -877,10 +922,11 @@
             <End Role="User" EntitySet="Users" />
             <End Role="ViewCv" EntitySet="ViewCvs" />
           </AssociationSet>
-          <EntitySet Name="News" EntityType="DataQuickJobModel.News" />
-          <AssociationSet Name="FK_News_Users" Association="DataQuickJobModel.FK_News_Users">
+          <EntitySet Name="Ratings" EntityType="DataQuickJobModel.Rating" />
+          <EntitySet Name="sysdiagrams" EntityType="DataQuickJobModel.sysdiagram" />
+          <AssociationSet Name="FK_Ratings_Users" Association="DataQuickJobModel.FK_Ratings_Users">
             <End Role="User" EntitySet="Users" />
-            <End Role="News" EntitySet="News" />
+            <End Role="Rating" EntitySet="Ratings" />
           </AssociationSet>
         </EntityContainer>
         <EntityType Name="Bill">
@@ -960,6 +1006,8 @@
           <NavigationProperty Name="SubmitCvs" Relationship="DataQuickJobModel.FK_SubmitCv_Cvs" FromRole="Cv" ToRole="SubmitCv" />
           <NavigationProperty Name="SubmitJobs" Relationship="DataQuickJobModel.FK_SubmitJob_Cvs" FromRole="Cv" ToRole="SubmitJob" />
           <NavigationProperty Name="ViewCvs" Relationship="DataQuickJobModel.FK_ViewCvs_Cvs" FromRole="Cv" ToRole="ViewCv" />
+          <Property Name="cv_pass" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="cv_submitkey" Type="Int32" />
         </EntityType>
         <EntityType Name="Exp">
           <Key>
@@ -982,11 +1030,11 @@
           <Property Name="provice_id" Type="Int32" />
           <Property Name="email" Type="String" MaxLength="3000" FixedLength="false" Unicode="false" />
           <Property Name="skill" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="em_id" Type="Int32" />
           <NavigationProperty Name="Category" Relationship="DataQuickJobModel.FK_Groups_Categorys" FromRole="Group" ToRole="Category" />
           <NavigationProperty Name="Job" Relationship="DataQuickJobModel.FK_Groups_Jobs" FromRole="Group" ToRole="Job" />
           <NavigationProperty Name="Provice" Relationship="DataQuickJobModel.FK_Groups_Provices" FromRole="Group" ToRole="Provice" />
           <NavigationProperty Name="User" Relationship="DataQuickJobModel.FK_Groups_Users" FromRole="Group" ToRole="User" />
-          <Property Name="em_id" Type="Int32" />
         </EntityType>
         <EntityType Name="ItemCv">
           <Key>
@@ -1040,6 +1088,26 @@
           <NavigationProperty Name="WorkPlace" Relationship="DataQuickJobModel.FK_Jobs_WorkPlaces" FromRole="Job" ToRole="WorkPlace" />
           <NavigationProperty Name="SubmitCvs" Relationship="DataQuickJobModel.FK_SubmitCv_Jobs" FromRole="Job" ToRole="SubmitCv" />
           <NavigationProperty Name="SubmitJobs" Relationship="DataQuickJobModel.FK_SubmitJob_Jobs" FromRole="Job" ToRole="SubmitJob" />
+        </EntityType>
+        <EntityType Name="News">
+          <Key>
+            <PropertyRef Name="news_id" />
+          </Key>
+          <Property Name="news_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="news_title" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="news_contents" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="news_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="cate_id" Type="Int32" />
+          <Property Name="news_tags" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="news_genres" Type="Int32" />
+          <Property Name="news_datecreate" Type="DateTime" Precision="3" />
+          <Property Name="news_dateupdate" Type="DateTime" Precision="3" />
+          <Property Name="news_active" Type="Boolean" />
+          <Property Name="news_option" Type="Boolean" />
+          <Property Name="news_bin" Type="Boolean" />
+          <Property Name="user_id" Type="Int32" />
+          <Property Name="news_view" Type="Int32" />
+          <NavigationProperty Name="User" Relationship="DataQuickJobModel.FK_News_Users" FromRole="News" ToRole="User" />
         </EntityType>
         <EntityType Name="Pakage">
           <Key>
@@ -1104,16 +1172,6 @@
           <NavigationProperty Name="Job" Relationship="DataQuickJobModel.FK_SubmitJob_Jobs" FromRole="SubmitJob" ToRole="Job" />
           <NavigationProperty Name="User" Relationship="DataQuickJobModel.FK_SubmitJob_Users" FromRole="SubmitJob" ToRole="User" />
         </EntityType>
-        <EntityType Name="sysdiagram">
-          <Key>
-            <PropertyRef Name="diagram_id" />
-          </Key>
-          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
-          <Property Name="principal_id" Type="Int32" Nullable="false" />
-          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="version" Type="Int32" />
-          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
-        </EntityType>
         <EntityType Name="Theme">
           <Key>
             <PropertyRef Name="theme_id" />
@@ -1171,10 +1229,12 @@
           <Property Name="user_deadline" Type="DateTime" Precision="3" />
           <Property Name="employer_amoutjob" Type="Int32" />
           <Property Name="user_bin" Type="Boolean" />
+          <Property Name="candidate_amoutcv" Type="Int32" />
           <NavigationProperty Name="Bills" Relationship="DataQuickJobModel.FK_Bills_Users" FromRole="User" ToRole="Bill" />
           <NavigationProperty Name="Cvs" Relationship="DataQuickJobModel.FK_Cvs_Users" FromRole="User" ToRole="Cv" />
           <NavigationProperty Name="Groups" Relationship="DataQuickJobModel.FK_Groups_Users" FromRole="User" ToRole="Group" />
           <NavigationProperty Name="Jobs" Relationship="DataQuickJobModel.FK_Jobs_Users" FromRole="User" ToRole="Job" />
+          <NavigationProperty Name="News" Relationship="DataQuickJobModel.FK_News_Users" FromRole="User" ToRole="News" />
           <NavigationProperty Name="Provice" Relationship="DataQuickJobModel.FK_Users_Provices" FromRole="User" ToRole="Provice" />
           <NavigationProperty Name="Role" Relationship="DataQuickJobModel.FK_Users_Roles" FromRole="User" ToRole="Role" />
           <NavigationProperty Name="SubmitCvs" Relationship="DataQuickJobModel.FK_SubmitCv_Users" FromRole="User" ToRole="SubmitCv" />
@@ -1182,8 +1242,7 @@
           <NavigationProperty Name="Version" Relationship="DataQuickJobModel.FK_Users_Versions" FromRole="User" ToRole="Version" />
           <NavigationProperty Name="WorkPlace" Relationship="DataQuickJobModel.FK_Users_WorkPlaces" FromRole="User" ToRole="WorkPlace" />
           <NavigationProperty Name="ViewCvs" Relationship="DataQuickJobModel.FK_ViewCvs_Users" FromRole="User" ToRole="ViewCv" />
-          <Property Name="candidate_amoutcv" Type="Int32" />
-          <NavigationProperty Name="News" Relationship="DataQuickJobModel.FK_News_Users" FromRole="User" ToRole="News" />
+          <NavigationProperty Name="Ratings" Relationship="DataQuickJobModel.FK_Ratings_Users" FromRole="User" ToRole="Rating" />
         </EntityType>
         <EntityType Name="Version">
           <Key>
@@ -1425,6 +1484,18 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
+        <Association Name="FK_News_Users">
+          <End Type="DataQuickJobModel.User" Role="User" Multiplicity="0..1" />
+          <End Type="DataQuickJobModel.News" Role="News" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="user_id" />
+            </Principal>
+            <Dependent Role="News">
+              <PropertyRef Name="user_id" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
         <Association Name="FK_Pakages_Roles">
           <End Type="DataQuickJobModel.Role" Role="Role" Multiplicity="0..1" />
           <End Type="DataQuickJobModel.Pakage" Role="Pakage" Multiplicity="*" />
@@ -1521,39 +1592,52 @@
             </Dependent>
           </ReferentialConstraint>
         </Association>
-        <EntityType Name="News">
+        <EntityType Name="Rating">
           <Key>
-            <PropertyRef Name="news_id" />
+            <PropertyRef Name="rating_id" />
           </Key>
-          <Property Name="news_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="news_title" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
-          <Property Name="news_contents" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="news_image" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="cate_id" Type="Int32" />
-          <Property Name="news_tags" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
-          <Property Name="news_genres" Type="Int32" />
-          <Property Name="news_datecreate" Type="DateTime" Precision="3" />
-          <Property Name="news_dateupdate" Type="DateTime" Precision="3" />
-          <Property Name="news_active" Type="Boolean" />
-          <Property Name="news_option" Type="Boolean" />
-          <Property Name="news_bin" Type="Boolean" />
+          <Property Name="rating_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
           <Property Name="user_id" Type="Int32" />
-          <Property Name="news_view" Type="Int32" />
-          <NavigationProperty Name="User" Relationship="DataQuickJobModel.FK_News_Users" FromRole="News" ToRole="User" />
+          <Property Name="idem" Type="Int32" />
+          <Property Name="rating_datecreate" Type="DateTime" Precision="3" />
+          <Property Name="rating_sum" Type="Int32" />
+          <Property Name="rating_title" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="rating_like" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="rating_improve" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="rating_ltpl" Type="Int32" />
+          <Property Name="rating_dthh" Type="Int32" />
+          <Property Name="rating_sqtdnv" Type="Int32" />
+          <Property Name="rating_vhct" Type="Int32" />
+          <Property Name="rating_vplv" Type="Int32" />
+          <Property Name="rating_intro" Type="Boolean" />
+          <Property Name="rating_level" Type="Boolean" />
+          <Property Name="rating_satisfied" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <Property Name="rating_unsatisfied" Type="String" MaxLength="Max" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="User" Relationship="DataQuickJobModel.FK_Ratings_Users" FromRole="Rating" ToRole="User" />
         </EntityType>
-        <Association Name="FK_News_Users">
+        <EntityType Name="sysdiagram">
+          <Key>
+            <PropertyRef Name="diagram_id" />
+          </Key>
+          <Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="principal_id" Type="Int32" Nullable="false" />
+          <Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="version" Type="Int32" />
+          <Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+        </EntityType>
+        <Association Name="FK_Ratings_Users">
           <End Type="DataQuickJobModel.User" Role="User" Multiplicity="0..1" />
-          <End Type="DataQuickJobModel.News" Role="News" Multiplicity="*" />
+          <End Type="DataQuickJobModel.Rating" Role="Rating" Multiplicity="*" />
           <ReferentialConstraint>
             <Principal Role="User">
               <PropertyRef Name="user_id" />
             </Principal>
-            <Dependent Role="News">
+            <Dependent Role="Rating">
               <PropertyRef Name="user_id" />
             </Dependent>
           </ReferentialConstraint>
         </Association>
-      </Schema>
+        </Schema>
     </edmx:ConceptualModels>
     <!-- C-S mapping content -->
     <edmx:Mappings>
@@ -1600,6 +1684,8 @@
           <EntitySetMapping Name="Cvs">
             <EntityTypeMapping TypeName="DataQuickJobModel.Cv">
               <MappingFragment StoreEntitySet="Cvs">
+                <ScalarProperty Name="cv_submitkey" ColumnName="cv_submitkey" />
+                <ScalarProperty Name="cv_pass" ColumnName="cv_pass" />
                 <ScalarProperty Name="cv_f" ColumnName="cv_f" />
                 <ScalarProperty Name="cv_addpress" ColumnName="cv_addpress" />
                 <ScalarProperty Name="theme_id" ColumnName="theme_id" />
@@ -1705,6 +1791,26 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
+          <EntitySetMapping Name="News">
+            <EntityTypeMapping TypeName="DataQuickJobModel.News">
+              <MappingFragment StoreEntitySet="News">
+                <ScalarProperty Name="news_view" ColumnName="news_view" />
+                <ScalarProperty Name="user_id" ColumnName="user_id" />
+                <ScalarProperty Name="news_bin" ColumnName="news_bin" />
+                <ScalarProperty Name="news_option" ColumnName="news_option" />
+                <ScalarProperty Name="news_active" ColumnName="news_active" />
+                <ScalarProperty Name="news_dateupdate" ColumnName="news_dateupdate" />
+                <ScalarProperty Name="news_datecreate" ColumnName="news_datecreate" />
+                <ScalarProperty Name="news_genres" ColumnName="news_genres" />
+                <ScalarProperty Name="news_tags" ColumnName="news_tags" />
+                <ScalarProperty Name="cate_id" ColumnName="cate_id" />
+                <ScalarProperty Name="news_image" ColumnName="news_image" />
+                <ScalarProperty Name="news_contents" ColumnName="news_contents" />
+                <ScalarProperty Name="news_title" ColumnName="news_title" />
+                <ScalarProperty Name="news_id" ColumnName="news_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
           <EntitySetMapping Name="Pakages">
             <EntityTypeMapping TypeName="DataQuickJobModel.Pakage">
               <MappingFragment StoreEntitySet="Pakages">
@@ -1758,17 +1864,6 @@
                 <ScalarProperty Name="job_id" ColumnName="job_id" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
                 <ScalarProperty Name="sj_id" ColumnName="sj_id" />
-              </MappingFragment>
-            </EntityTypeMapping>
-          </EntitySetMapping>
-          <EntitySetMapping Name="sysdiagrams">
-            <EntityTypeMapping TypeName="DataQuickJobModel.sysdiagram">
-              <MappingFragment StoreEntitySet="sysdiagrams">
-                <ScalarProperty Name="definition" ColumnName="definition" />
-                <ScalarProperty Name="version" ColumnName="version" />
-                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
-                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
-                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
@@ -1867,23 +1962,37 @@
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>
-          <EntitySetMapping Name="News">
-            <EntityTypeMapping TypeName="DataQuickJobModel.News">
-              <MappingFragment StoreEntitySet="News">
-                <ScalarProperty Name="news_view" ColumnName="news_view" />
+          <EntitySetMapping Name="Ratings">
+            <EntityTypeMapping TypeName="DataQuickJobModel.Rating">
+              <MappingFragment StoreEntitySet="Ratings">
+                <ScalarProperty Name="rating_unsatisfied" ColumnName="rating_unsatisfied" />
+                <ScalarProperty Name="rating_satisfied" ColumnName="rating_satisfied" />
+                <ScalarProperty Name="rating_level" ColumnName="rating_level" />
+                <ScalarProperty Name="rating_intro" ColumnName="rating_intro" />
+                <ScalarProperty Name="rating_vplv" ColumnName="rating_vplv" />
+                <ScalarProperty Name="rating_vhct" ColumnName="rating_vhct" />
+                <ScalarProperty Name="rating_sqtdnv" ColumnName="rating_sqtdnv" />
+                <ScalarProperty Name="rating_dthh" ColumnName="rating_dthh" />
+                <ScalarProperty Name="rating_ltpl" ColumnName="rating_ltpl" />
+                <ScalarProperty Name="rating_improve" ColumnName="rating_improve" />
+                <ScalarProperty Name="rating_like" ColumnName="rating_like" />
+                <ScalarProperty Name="rating_title" ColumnName="rating_title" />
+                <ScalarProperty Name="rating_sum" ColumnName="rating_sum" />
+                <ScalarProperty Name="rating_datecreate" ColumnName="rating_datecreate" />
+                <ScalarProperty Name="idem" ColumnName="idem" />
                 <ScalarProperty Name="user_id" ColumnName="user_id" />
-                <ScalarProperty Name="news_bin" ColumnName="news_bin" />
-                <ScalarProperty Name="news_option" ColumnName="news_option" />
-                <ScalarProperty Name="news_active" ColumnName="news_active" />
-                <ScalarProperty Name="news_dateupdate" ColumnName="news_dateupdate" />
-                <ScalarProperty Name="news_datecreate" ColumnName="news_datecreate" />
-                <ScalarProperty Name="news_genres" ColumnName="news_genres" />
-                <ScalarProperty Name="news_tags" ColumnName="news_tags" />
-                <ScalarProperty Name="cate_id" ColumnName="cate_id" />
-                <ScalarProperty Name="news_image" ColumnName="news_image" />
-                <ScalarProperty Name="news_contents" ColumnName="news_contents" />
-                <ScalarProperty Name="news_title" ColumnName="news_title" />
-                <ScalarProperty Name="news_id" ColumnName="news_id" />
+                <ScalarProperty Name="rating_id" ColumnName="rating_id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="sysdiagrams">
+            <EntityTypeMapping TypeName="DataQuickJobModel.sysdiagram">
+              <MappingFragment StoreEntitySet="sysdiagrams">
+                <ScalarProperty Name="definition" ColumnName="definition" />
+                <ScalarProperty Name="version" ColumnName="version" />
+                <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+                <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+                <ScalarProperty Name="name" ColumnName="name" />
               </MappingFragment>
             </EntityTypeMapping>
           </EntitySetMapping>

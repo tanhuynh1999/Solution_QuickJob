@@ -30,8 +30,15 @@
                     </div>
                     <div class="col-lg-3">
                         <a href="#submit" class="ui green button w-100">ỨNG TUYỂN NGAY</a>
-                        <button ng-show="count == 0" class="ui grey basic button w-100 mt-2" ng-click="favourite(@Model.job_id)"><i class="fa fa-box-open">&nbsp;</i>Lưu tin</button>
-                        <button ng-repeat="list in list" ng-show="count != 0" class="ui red button w-100 mt-2" ng-click="cancelfavourite(list.id)"><i class="fa fa-box">&nbsp;</i>Đã lưu</button>
+                        @if (fu.Cookie() != null)
+                        {
+                            <button ng-show="count == 0" class="ui grey basic button w-100 mt-2" ng-click="favourite(@Model.job_id)"><i class="fa fa-box-open">&nbsp;</i>Lưu tin</button>
+                            <button ng-repeat="list in list" ng-show="count != 0" class="ui red button w-100 mt-2" ng-click="cancelfavourite(list.id)"><i class="fa fa-box">&nbsp;</i>Đã lưu</button>
+                        }
+                        else
+                        {
+                            <button data-bs-toggle="modal" data-bs-target="#login" class="ui grey basic button w-100 mt-2"><i class="fa fa-box-open">&nbsp;</i>Lưu tin</button>
+                        }
                     </div>
                     <div class="col-lg-12 mt-5">
 
@@ -80,7 +87,7 @@
                                             }
                                             else
                                             {
-                                                <button class="ui green button" data-bs-toggle="modal" data-bs-target="#submitsubmit">ỨNG TUYỂN NGAY</button> <br />
+                                                <button class="ui green button" data-bs-toggle="modal" data-bs-target="#login">ỨNG TUYỂN NGAY</button> <br />
                                             }
                                             Hạn nộp hồ sơ: @Model.job_datedeline.Value.ToString("dd/MM/yyyy")
                                         </center>
@@ -90,7 +97,7 @@
                                         <br />
                                         @foreach (var item in db.Groups.Where(n => n.group_item == Common.Common.GROUP_JOB_CATEGORY && n.job_id == Model.job_id).OrderByDescending(n => n.Category.cate_name))
                                         {
-                                            <button class="ui inverted secondary button">@item.Category.cate_name</button>
+                                            <button class="ui inverted secondary button mt-1">@item.Category.cate_name</button>
                                         }
                                     </div>
                                     <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
@@ -223,7 +230,7 @@
                 <form method="post" action="/Cvs/SubmitCv?id=@Model.job_id">
                     @Html.AntiForgeryToken()
                     <div class="modal-body">
-                        <p class="text-danger">Bạn có biết! Sửa dụng Cv online kèm với tính năng chấm điểm sẽ giúp kiếm được việc làm nhanh nhất.</p>
+                        <p class="text-danger">Bạn có biết! Sử dụng Cv online kèm với tính năng chấm điểm sẽ giúp kiếm được việc làm nhanh nhất.</p>
                         <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="pills-home-tab" data-bs-toggle="pill" data-bs-target="#pills-home" type="button" role="tab" aria-controls="pills-home" aria-selected="true">Nộp bằng CV Online</button>

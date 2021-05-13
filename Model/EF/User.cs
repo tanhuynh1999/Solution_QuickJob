@@ -21,10 +21,11 @@ namespace Model.EF
             this.Cvs = new HashSet<Cv>();
             this.Groups = new HashSet<Group>();
             this.Jobs = new HashSet<Job>();
+            this.News = new HashSet<News>();
             this.SubmitCvs = new HashSet<SubmitCv>();
             this.SubmitJobs = new HashSet<SubmitJob>();
             this.ViewCvs = new HashSet<ViewCv>();
-            this.News = new HashSet<News>();
+            this.Ratings = new HashSet<Rating>();
         }
     
         public int user_id { get; set; }
@@ -68,6 +69,8 @@ namespace Model.EF
         public virtual ICollection<Group> Groups { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Job> Jobs { get; set; }
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
+        public virtual ICollection<News> News { get; set; }
         public virtual Provice Provice { get; set; }
         public virtual Role Role { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
@@ -79,6 +82,6 @@ namespace Model.EF
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<ViewCv> ViewCvs { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
-        public virtual ICollection<News> News { get; set; }
+        public virtual ICollection<Rating> Ratings { get; set; }
     }
 }

@@ -103,63 +103,72 @@ namespace QuickJob.Controllers
             var coo = new FunctionController();
             var id = coo.CookieID();
 
-            var pake = Int32.Parse(Session["pakeid"].ToString());
-            Pakage pakage = db.Pakages.Find(pake);
-
-            User us = db.Users.Find(id.user_id);
-
-            if (us.version_id == 2)
+            if(Session["pakeid"] == null)
             {
-                return Redirect("/Pays/IndexPakage");
+                return RedirectToAction("HistoryPay");
             }
             else
             {
-                if (errorCode.Equals(0))
+                var pake = Int32.Parse(Session["pakeid"].ToString());
+                Pakage pakage = db.Pakages.Find(pake);
+
+                User us = db.Users.Find(id.user_id);
+
+                if (us.version_id == 2)
                 {
-                    ViewBag.Note = "Thanh toán thành công";
-
-                    us.version_id = 2;
-                    us.candidate_amoutcv = 10;
-                    us.user_deadline = DateTime.Now.AddYears(1);
-                    db.SaveChanges();
-
-
-                    Bill bill = new Bill
-                    {
-                        user_id = id.user_id,
-                        bill_active = true,
-                        bill_datecreate = DateTime.Now,
-                        bill_dealine = DateTime.Now.AddYears(1),
-                        bill_sum = amount,
-                        pakege_id = pakage.pakage_id,
-                        bill_key = Guid.NewGuid().ToString(),
-                        bill_orderid = orderId
-
-                    };
-                    db.Bills.Add(bill);
-                    db.SaveChanges();
-                    return RedirectToAction("HistoryPay");
-
+                    return Redirect("/Pays/IndexPakage");
                 }
                 else
                 {
-                    ViewBag.Note = "Thanh toán thất bại";
-
-                    Bill bill = new Bill
+                    if (errorCode.Equals(0))
                     {
-                        user_id = id.user_id,
-                        bill_active = false,
-                        bill_datecreate = DateTime.Now,
-                        bill_dealine = DateTime.Now,
-                        bill_sum = amount,
-                        pakege_id = pakage.pakage_id,
-                        bill_key = Guid.NewGuid().ToString(),
-                        bill_orderid = orderId
+                        ViewBag.Note = "Thanh toán thành công";
 
-                    };
-                    db.Bills.Add(bill);
-                    db.SaveChanges();
-                    return RedirectToAction("HistoryPay");
+                        us.version_id = 2;
+                        us.candidate_amoutcv = 10;
+                        us.user_deadline = DateTime.Now.AddYears(1);
+                        db.SaveChanges();
+
+
+                        Bill bill = new Bill
+                        {
+                            user_id = id.user_id,
+                            bill_active = true,
+                            bill_datecreate = DateTime.Now,
+                            bill_dealine = DateTime.Now.AddYears(1),
+                            bill_sum = amount,
+                            pakege_id = pakage.pakage_id,
+                            bill_key = Guid.NewGuid().ToString(),
+                            bill_orderid = orderId
+
+                        };
+                        db.Bills.Add(bill);
+                        db.SaveChanges();
+                        Session["pakeid"] = null;
+                        return RedirectToAction("HistoryPay");
+
+                    }
+                    else
+                    {
+                        ViewBag.Note = "Thanh toán thất bại";
+
+                        Bill bill = new Bill
+                        {
+                            user_id = id.user_id,
+                            bill_active = false,
+                            bill_datecreate = DateTime.Now,
+                            bill_dealine = DateTime.Now,
+                            bill_sum = amount,
+                            pakege_id = pakage.pakage_id,
+                            bill_key = Guid.NewGuid().ToString(),
+                            bill_orderid = orderId
+
+                        };
+                        db.Bills.Add(bill);
+                        db.SaveChanges();
+                        Session["pakeid"] = null;
+                        return RedirectToAction("HistoryPay");
+                    }
                 }
             }
         }

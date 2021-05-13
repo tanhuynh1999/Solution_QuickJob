@@ -6,6 +6,8 @@
     var fu = new FunctionController();
     ViewBag.Title = "QuickJob Employer";
     Layout = "~/Areas/Employer/Views/Shared/_Layout.cshtml";
+
+    List<Cv> cv = db.Cvs.ToList();
 }
 @if (fu.CookieEm() != null)
 {
@@ -22,13 +24,13 @@
                                 <h5 style="font-size: 18px" class="title-a">Thống kê</h5>
                                 <hr />
                             </div>
-                            <div class="row" ng-repeat="list in list">
+                            <div class="row">
                                 <div class="col-lg-4">
                                     <b style="font-size: 17px">Tổng số ứng viên</b>
                                     <div class="ui statistics">
                                         <div class="gray statistic">
                                             <div class="value text-center">
-                                                {{list.CandidateAll}}
+                                                @cv.Count()
                                             </div>
                                             <div class="label">
                                                 Ứng viên
@@ -41,7 +43,7 @@
                                     <div class="ui statistics">
                                         <div class="red statistic">
                                             <div class="value">
-                                                {{list.CandidateMonth}}
+                                                @cv.Where(n=>n.cv_datecreate < n.cv_datecreate.Value.AddMonths(1)).Count()
                                             </div>
                                             <div class="label">
                                                 Ứng viên
@@ -54,7 +56,7 @@
                                     <div class="ui statistics">
                                         <div class="green statistic">
                                             <div class="value">
-                                                {{list.CandidateDay}}
+                                                @cv.Where(n => n.cv_datecreate.Value.ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy")).Count()
                                             </div>
                                             <div class="label">
                                                 Ứng viên
@@ -66,24 +68,10 @@
                                     <br />
                                     <b style="font-size: 17px">Ứng viên hôm nay</b>
                                     <br />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
-                                    <img src="~/Images/Cvs/blankprofile_large.png" style="width: 50px; height: 50px; border-radius: 50%" />
+                                    @foreach (var item in cv.Where(n=>n.cv_datecreate.Value.ToString("dd/MM/yyyy") == DateTime.Now.ToString("dd/MM/yyyy")).OrderByDescending(n=>n.cv_datecreate))
+                                    {
+                                        <img src="~/Images/Cvs/@item.cv_img" style="width: 50px; height: 50px; border-radius: 50%" />
+                                    }
                                 </div>
                                 <div class="col-lg-12 mt-5">
                                     <center>

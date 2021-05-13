@@ -33,12 +33,12 @@ namespace Model.EF
         public virtual DbSet<Group> Groups { get; set; }
         public virtual DbSet<ItemCv> ItemCvs { get; set; }
         public virtual DbSet<Job> Jobs { get; set; }
+        public virtual DbSet<News> News { get; set; }
         public virtual DbSet<Pakage> Pakages { get; set; }
         public virtual DbSet<Provice> Provices { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<SubmitCv> SubmitCvs { get; set; }
         public virtual DbSet<SubmitJob> SubmitJobs { get; set; }
-        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
         public virtual DbSet<Theme> Themes { get; set; }
         public virtual DbSet<TypeJob> TypeJobs { get; set; }
         public virtual DbSet<User> Users { get; set; }
@@ -46,6 +46,7 @@ namespace Model.EF
         public virtual DbSet<ViewCv> ViewCvs { get; set; }
         public virtual DbSet<Word> Words { get; set; }
         public virtual DbSet<WorkPlace> WorkPlaces { get; set; }
-        public virtual DbSet<News> News { get; set; }
+        public virtual DbSet<Rating> Ratings { get; set; }
+        public virtual DbSet<sysdiagram> sysdiagrams { get; set; }
     }
 }

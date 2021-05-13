@@ -377,5 +377,25 @@ namespace QuickJob.Controllers
         {
             return View();
         }
+        //Model
+        [HttpPost]
+        public ActionResult LoginModal(string email, string pass)
+        {
+            var dao = new UsersDAO();
+            var status = dao.Login(email, pass);
+            if (status)
+            {
+                var check = db.Users.SingleOrDefault(n => n.user_email == email && n.role_id == 1);
+                HttpCookie cookie = new HttpCookie("candidate", check.user_id.ToString());
+                cookie.Expires.AddDays(10);
+                Response.Cookies.Set(cookie);
+                return Redirect(Request.UrlReferrer.ToString());
+            }
+            else
+            {
+                ViewBag.Check = "Sai tài khoản hoặc mật khẩu. Vui lòng kiểm tra lại?";
+            }
+            return View();
+        }
     }
 }

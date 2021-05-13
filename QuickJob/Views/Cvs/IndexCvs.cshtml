@@ -65,7 +65,38 @@
                                                 <a style="font-size: 12px" class="ui inverted secondary button" href="/Cvs/Details?id={{list.id}}"><i class="fa fa-eye">&nbsp;</i>Xem</a>
                                                 <button style="font-size: 12px" class="ui inverted secondary button"><i class="fa fa-trash">&nbsp;</i>Xóa</button>
                                                 <button style="font-size: 12px" class="ui inverted secondary button" ng-click="edit(list.themeid)"><i class="fa fa-edit">&nbsp;</i>Sửa</button>
+                                                <button data-bs-toggle="modal" data-bs-target="#key-{{list.id}}" style="font-size: 12px" class="ui inverted secondary button"><i class="fa fa-key">&nbsp;</i>Tải nhanh</button>
                                                 <button style="font-size: 12px" class="ui inverted secondary button"><i class="fa fa-download">&nbsp;</i>Tải về</button>
+                                            </td>
+                                            <td>
+                                                <div class="modal fade" id="key-{{list.id}}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="exampleModalLabel">Đặt mật khẩu và tải khoản cho cv mã "{{list.key}}"</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <form method="post" action="@Url.Action("ChangeKey","Cvs")">
+                                                                @Html.AntiForgeryToken()
+                                                                <div class="modal-body">
+                                                                    <div class="alert alert-danger" role="alert">
+                                                                        Cài đặt tài khoản và Mật khẩu riêng cho CV. Bạn có thể tải bất kỳ đâu cho CV của bạn tại nút tải nhanh dưới màn hình QuickJob.com! Hãy chụp hình lại <b style="color: red">mã key : {{list.key}}</b> và mật khẩu để tải nhanh.
+                                                                    </div>
+                                                                    <b>Key</b> <br />
+                                                                    <input class="form-control" value="{{list.key}}" type="text" disabled />
+                                                                    <b>Nhập mật khẩu</b> <br />
+                                                                    <input class="form-control" name="pass" value="{{list.pass}}" placeholder="Nhập mật khẩu" type="password" required />
+                                                                    <input class="form-control" name="id" value="{{list.id}}" placeholder="Nhập mật khẩu" type="hidden" required />
+                                                                </div>
+                                                                <div class="modal-footer">
+                                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                                                                    <button type="submit" class="btn btn-primary">Cài đặt</button>
+                                                                </div>
+                                                            </form>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
                                         </tr>
                                     </table>
                                 </div>
@@ -73,13 +104,16 @@
                         </div>
                     </div>
                     <div class="col-lg-4">
-                        @Html.Action("All","Users")
+                        @Html.Action("All", "Users")
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
+<!-- Modal -->
+<!-- Modal -->
+
 <script>
     var app = angular.module('myApp', []);
     app.controller('myCtrl', function ($scope, $http) {
@@ -91,7 +125,7 @@
             $scope.count = $scope.list.length;
 
             $scope.edit = function (id) {
-                window.location.href = "/Cvs/Theme/"+id+"";
+                window.location.href = "/Cvs/Theme/" + id + "";
             }
 
             $scope.details = function (id) {

@@ -1,4 +1,5 @@
 ﻿@model IEnumerable<Model.EF.Cv>
+@using Microsoft.Ajax.Utilities;
 @using Model.EF;
 @{
     ViewBag.Title = "Tìm kiếm ứng viên";
@@ -10,7 +11,6 @@
 }
 
 <section class="intro-single">
-    
 </section>
 <section class="property-grid grid" ng-app="myApp">
     <div class="container" ng-controller="myCtrl">
@@ -37,7 +37,7 @@
                     </select>
                     <select class="form-control mt-3" style="height: 40px" ng-model="txtSearch.location2">
                         <option value="">Tất cả vị trí</option>
-                        @foreach(var item in cvs)
+                        @foreach (var item in db.Cvs.DistinctBy(n => n.cv_location.ToLower()).OrderByDescending(n => n.cv_datecreate))
                         {
                             <option value="@item.cv_location">@item.cv_location</option>
                         }
@@ -49,13 +49,10 @@
                     </select>
                     <hr />
                     <b>Các vị trí ứng tuyển</b> <br />
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
-                    <a class="ui grey label mt-1">Grey</a>
+                    @foreach (var item in db.Cvs.DistinctBy(n => n.cv_location.ToLower()).OrderByDescending(n => n.cv_datecreate))
+                    {
+                        <button class="ui secondary basic button mt-2">@item.cv_location</button>
+                    }
                     <br />
                     <br />
                 </div>

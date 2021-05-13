@@ -330,5 +330,19 @@ namespace QuickJob.Controllers
         {
             CvHub.ShowAttentionEmployer();
         }
+        public ActionResult Rating(Rating rating)
+        {
+            var cookie = new FunctionController();
+            var idus = cookie.CookieID();
+
+            rating.rating_datecreate = DateTime.Now;
+            rating.user_id = idus.user_id;
+
+
+
+            db.Ratings.Add(rating);
+            db.SaveChanges();
+            return Redirect(Request.UrlReferrer.ToString());
+        }
     }
 }

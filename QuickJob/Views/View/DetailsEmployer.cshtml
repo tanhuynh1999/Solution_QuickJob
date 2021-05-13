@@ -10,6 +10,7 @@
 
     var fu = new FunctionController();
 }
+
 <section id="services">
     @if (Model.version_id == 3 || Model.version_id == 4 || Model.version_id == 5)
     {
@@ -39,9 +40,17 @@
                 </div>
                 <div class="col-lg-3">
                     <br />
-                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
-                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
-                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                    @if (fu.Cookie() != null)
+                    {
+                        <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                        <button class="ui red button w-100 mt-2" data-bs-toggle="modal" data-bs-target="#dg">Đánh giá</button>
+                    }
+                    else
+                    {
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui red button w-100 mt-2">Đánh giá</button>
+                    }
                 </div>
                 <div class="col-lg-12 mt-5">
 
@@ -172,7 +181,66 @@
                                 }
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                            @foreach (var item in db.Ratings.Where(n => n.idem == Model.user_id).OrderByDescending(n => n.rating_datecreate))
+                            {
+                                <div class="row">
+                                    <div class="col-lg-7">
+                                        <div class="mt-2" style="font-size: 20px">
+                                            "@item.rating_title" - Khuyển nghị: @(item.rating_intro == true ? "Nên làm việc tại đây" : "Cần xem lại") <br />
+                                            <div>
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
+                                            </div>
+                                            <b>Điều tôi thích:</b>
+                                            <p>@item.rating_like</p>
+                                            <b>Cần cải thiện:</b>
+                                            <p>@item.rating_improve</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <br />
+                                        <div>
+                                            Lương thưởng & phúc lợi:
+                                            <div style=" float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_ltpl" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_ltpl/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Đào tạo & học hỏi:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_dthh" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_dthh/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Sự quan tâm đến nhân viên:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sqtdnv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sqtdnv/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn hoá công ty:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vhct" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vhct/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn phòng làm việc:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vplv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vplv/5)</span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <hr />
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-3">
@@ -193,17 +261,25 @@
                     <div class="border">
                         <center>
                             <b>ĐÁNH GIÁ</b>
+                            @{
+                                var sum = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sum);
+                                var countsum = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sumall = sum / countsum;
+                            }
                             <br />
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumall" data-max-rating="5"></div>
                             <br />
-                            (5/5)
+
+                            (@sumall/5)
                         </center>
                         <center>
-                            <div class="progress-pie-chart" data-percent="43">
+                            @{
+                                var sumlike = db.Ratings.Where(n => n.rating_intro == true && n.idem == Model.user_id).Count();
+                                var countlike = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sl = (float)sumlike / countlike;
+
+                            }
+                            <div class="progress-pie-chart" data-percent="@(sl * 100)">
                                 <div class="ppc-progress">
                                     <div class="ppc-progress-fill"></div>
                                 </div>
@@ -219,59 +295,68 @@
                             <div style="padding: 5px">
                                 <table>
                                     <tr>
+                                        @{
+                                            var sumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_ltpl);
+                                            var countsumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalltlpl = sumtlpl / countsumtlpl;
+                                        }
                                         <td style="width: 60%">Tiền lương và phúc lợi</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalltlpl" data-max-rating="5"></div>
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalltlpl</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtdtht = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_dthh);
+                                            var countsumtlpldtht = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalldtht = sumtdtht / countsumtlpldtht;
+                                        }
                                         <td>Đào tạo và học tập</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalldtht" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalldtht</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtsqt = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sqtdnv);
+                                            var countsumsqt = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallsqt = sumtsqt / countsumsqt;
+                                        }
                                         <td>Sự quan tâm</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallsqt" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallsqt</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtvh = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vhct);
+                                            var countsumvh = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallvh = sumtvh / countsumvh;
+                                        }
                                         <td>Văn hóa vui vẻ</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallvh" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallvh</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtlv = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vplv);
+                                            var countsumlv = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalllv = sumtlv / countsumlv;
+                                        }
                                         <td>Văn phòng và thông gian làm việc</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalllv" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalllv</td>
                                     </tr>
                                 </table>
                             </div>
@@ -280,14 +365,14 @@
                     <div class="border mt-3">
                         <div style="padding: 10px">
                             <h4 class="text-danger">Top đánh giá</h4>
-                            @for (var i = 0; i < 8; i++)
+                            @foreach (var item in db.Ratings.Where(n => n.idem == Model.user_id && n.rating_sum > 3).OrderByDescending(n => n.rating_datecreate))
                             {
                                 <div class="mt-2" style="font-size: 20px">
-                                    "Môi trường rất tốt" <br />
+                                    "@item.rating_title" <br />
                                     <div>
-                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
                                     </div>
-                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <p>@item.rating_like</p>
                                     <hr />
                                 </div>
                             }
@@ -375,9 +460,17 @@
                 </div>
                 <div class="col-lg-3">
                     <br />
-                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
-                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
-                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                    @if (fu.Cookie() != null)
+                    {
+                        <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                        <button class="ui red button w-100 mt-2" data-bs-toggle="modal" data-bs-target="#dg">Đánh giá</button>
+                    }
+                    else
+                    {
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui red button w-100 mt-2">Đánh giá</button>
+                    }
                 </div>
                 <div class="col-lg-12 mt-5">
 
@@ -508,7 +601,66 @@
                                 }
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                            @foreach (var item in db.Ratings.Where(n => n.idem == Model.user_id).OrderByDescending(n => n.rating_datecreate))
+                            {
+                                <div class="row">
+                                    <div class="col-lg-7">
+                                        <div class="mt-2" style="font-size: 20px">
+                                            "@item.rating_title" - Khuyển nghị: @(item.rating_intro == true ? "Nên làm việc tại đây" : "Cần xem lại") <br />
+                                            <div>
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
+                                            </div>
+                                            <b>Điều tôi thích:</b>
+                                            <p>@item.rating_like</p>
+                                            <b>Cần cải thiện:</b>
+                                            <p>@item.rating_improve</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <br />
+                                        <div>
+                                            Lương thưởng & phúc lợi:
+                                            <div style=" float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_ltpl" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_ltpl/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Đào tạo & học hỏi:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_dthh" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_dthh/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Sự quan tâm đến nhân viên:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sqtdnv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sqtdnv/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn hoá công ty:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vhct" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vhct/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn phòng làm việc:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vplv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vplv/5)</span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <hr />
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-3">
@@ -529,17 +681,25 @@
                     <div class="border">
                         <center>
                             <b>ĐÁNH GIÁ</b>
+                            @{
+                                var sum = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sum);
+                                var countsum = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sumall = sum / countsum;
+                            }
                             <br />
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumall" data-max-rating="5"></div>
                             <br />
-                            (5/5)
+
+                            (@sumall/5)
                         </center>
                         <center>
-                            <div class="progress-pie-chart" data-percent="43">
+                            @{
+                                var sumlike = db.Ratings.Where(n => n.rating_intro == true && n.idem == Model.user_id).Count();
+                                var countlike = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sl = (float)sumlike / countlike;
+
+                            }
+                            <div class="progress-pie-chart" data-percent="@(sl * 100)">
                                 <div class="ppc-progress">
                                     <div class="ppc-progress-fill"></div>
                                 </div>
@@ -555,59 +715,68 @@
                             <div style="padding: 5px">
                                 <table>
                                     <tr>
+                                        @{
+                                            var sumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_ltpl);
+                                            var countsumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalltlpl = sumtlpl / countsumtlpl;
+                                        }
                                         <td style="width: 60%">Tiền lương và phúc lợi</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalltlpl" data-max-rating="5"></div>
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalltlpl</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtdtht = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_dthh);
+                                            var countsumtlpldtht = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalldtht = sumtdtht / countsumtlpldtht;
+                                        }
                                         <td>Đào tạo và học tập</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalldtht" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalldtht</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtsqt = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sqtdnv);
+                                            var countsumsqt = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallsqt = sumtsqt / countsumsqt;
+                                        }
                                         <td>Sự quan tâm</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallsqt" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallsqt</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtvh = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vhct);
+                                            var countsumvh = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallvh = sumtvh / countsumvh;
+                                        }
                                         <td>Văn hóa vui vẻ</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallvh" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallvh</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtlv = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vplv);
+                                            var countsumlv = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalllv = sumtlv / countsumlv;
+                                        }
                                         <td>Văn phòng và thông gian làm việc</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalllv" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalllv</td>
                                     </tr>
                                 </table>
                             </div>
@@ -616,14 +785,14 @@
                     <div class="border mt-3">
                         <div style="padding: 10px">
                             <h4 class="text-danger">Top đánh giá</h4>
-                            @for (var i = 0; i < 8; i++)
+                            @foreach (var item in db.Ratings.Where(n => n.idem == Model.user_id && n.rating_sum > 3).OrderByDescending(n => n.rating_datecreate))
                             {
                                 <div class="mt-2" style="font-size: 20px">
-                                    "Môi trường rất tốt" <br />
+                                    "@item.rating_title" <br />
                                     <div>
-                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
                                     </div>
-                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <p>@item.rating_like</p>
                                     <hr />
                                 </div>
                             }
@@ -711,9 +880,17 @@
                 </div>
                 <div class="col-lg-3">
                     <br />
-                    <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
-                    <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
-                    <button class="ui red button w-100 mt-2">Đánh giá</button>
+                    @if (fu.Cookie() != null)
+                    {
+                        <button ng-show="count == 0" ng-click="follow(@Model.user_id)" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button ng-show="count != 0" ng-repeat="list in list" ng-click="cancelfollow(list.id)" class="ui green button w-100"><i class="fas fa-bell">&nbsp;</i>Hủy theo dõi</button>
+                        <button class="ui red button w-100 mt-2" data-bs-toggle="modal" data-bs-target="#dg">Đánh giá</button>
+                    }
+                    else
+                    {
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui grey basic button w-100"><i class="far fa-bell">&nbsp;</i>Theo dõi</button>
+                        <button data-bs-toggle="modal" data-bs-target="#login" class="ui red button w-100 mt-2">Đánh giá</button>
+                    }
                 </div>
                 <div class="col-lg-12 mt-5">
 
@@ -844,7 +1021,66 @@
                                 }
                             </div>
                         </div>
-                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">...</div>
+                        <div class="tab-pane fade" id="pills-contact" role="tabpanel" aria-labelledby="pills-contact-tab">
+                            @foreach (var item in db.Ratings.Where(n => n.idem == Model.user_id).OrderByDescending(n => n.rating_datecreate))
+                            {
+                                <div class="row">
+                                    <div class="col-lg-7">
+                                        <div class="mt-2" style="font-size: 20px">
+                                            "@item.rating_title" - Khuyển nghị: @(item.rating_intro == true ? "Nên làm việc tại đây" : "Cần xem lại") <br />
+                                            <div>
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
+                                            </div>
+                                            <b>Điều tôi thích:</b>
+                                            <p>@item.rating_like</p>
+                                            <b>Cần cải thiện:</b>
+                                            <p>@item.rating_improve</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5">
+                                        <br />
+                                        <div>
+                                            Lương thưởng & phúc lợi:
+                                            <div style=" float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_ltpl" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_ltpl/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Đào tạo & học hỏi:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_dthh" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_dthh/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Sự quan tâm đến nhân viên:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sqtdnv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sqtdnv/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn hoá công ty:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vhct" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vhct/5)</span>
+
+                                            </div>
+                                        </div>
+                                        <div>
+                                            Văn phòng làm việc:
+                                            <div style="float: right">
+                                                <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_vplv" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_vplv/5)</span>
+
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <hr />
+                                    </div>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-3">
@@ -865,17 +1101,25 @@
                     <div class="border">
                         <center>
                             <b>ĐÁNH GIÁ</b>
+                            @{
+                                var sum = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sum);
+                                var countsum = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sumall = sum / countsum;
+                            }
                             <br />
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
-                            <i class="fa fa-star"></i>
+                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumall" data-max-rating="5"></div> 
                             <br />
-                            (5/5)
+
+                            (@sumall/5)
                         </center>
                         <center>
-                            <div class="progress-pie-chart" data-percent="43">
+                            @{ 
+                                var sumlike = db.Ratings.Where(n => n.rating_intro == true && n.idem == Model.user_id).Count();
+                                var countlike = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                var sl = (float)sumlike / countlike;
+
+                            }
+                            <div class="progress-pie-chart" data-percent="@(sl * 100)">
                                 <div class="ppc-progress">
                                     <div class="ppc-progress-fill"></div>
                                 </div>
@@ -891,59 +1135,68 @@
                             <div style="padding: 5px">
                                 <table>
                                     <tr>
+                                        @{
+                                            var sumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_ltpl);
+                                            var countsumtlpl = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalltlpl = sumtlpl / countsumtlpl;
+                                        }
                                         <td style="width: 60%">Tiền lương và phúc lợi</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalltlpl" data-max-rating="5"></div>
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalltlpl</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtdtht = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_dthh);
+                                            var countsumtlpldtht = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalldtht = sumtdtht / countsumtlpldtht;
+                                        }
                                         <td>Đào tạo và học tập</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalldtht" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalldtht</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtsqt = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_sqtdnv);
+                                            var countsumsqt = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallsqt = sumtsqt / countsumsqt;
+                                        }
                                         <td>Sự quan tâm</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallsqt" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallsqt</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtvh = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vhct);
+                                            var countsumvh = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumallvh = sumtvh / countsumvh;
+                                        }
                                         <td>Văn hóa vui vẻ</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumallvh" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumallvh</td>
                                     </tr>
                                     <tr>
+                                        @{
+                                            var sumtlv = db.Ratings.Where(n => n.idem == Model.user_id).Sum(n => n.rating_vplv);
+                                            var countsumlv = db.Ratings.Where(n => n.idem == Model.user_id).Count();
+                                            var sumalllv = sumtlv / countsumlv;
+                                        }
                                         <td>Văn phòng và thông gian làm việc</td>
                                         <td>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
-                                            <i class="fa fa-star"></i>
+                                            <div class="view ui rating star" style="font-size: 18px;" data-rating="@sumalllv" data-max-rating="5"></div>
+
                                         </td>
-                                        <td>5</td>
+                                        <td>@sumalllv</td>
                                     </tr>
                                 </table>
                             </div>
@@ -952,14 +1205,14 @@
                     <div class="border mt-3">
                         <div style="padding: 10px">
                             <h4 class="text-danger">Top đánh giá</h4>
-                            @for (var i = 0; i < 8; i++)
+                            @foreach (var item in db.Ratings.Where(n=>n.idem == Model.user_id && n.rating_sum > 3).OrderByDescending(n=>n.rating_datecreate))
                             {
                                 <div class="mt-2" style="font-size: 20px">
-                                    "Môi trường rất tốt" <br />
+                                    "@item.rating_title" <br />
                                     <div>
-                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="3" data-max-rating="5"></div> <span style="font-size: 12px">(3/5)</span>
+                                        <div class="view ui rating star" style="font-size: 18px;" data-rating="@item.rating_sum" data-max-rating="5"></div> <span style="font-size: 12px">(@item.rating_sum/5)</span>
                                     </div>
-                                    <p>Trang thiết bị hiện đại và rât ok con bò cười</p>
+                                    <p>@item.rating_like</p>
                                     <hr />
                                 </div>
                             }
@@ -1148,3 +1401,290 @@
         </div>
     </div>
 </div>
+@if (fu.Cookie() != null)
+{
+    <link href="~/Content/Rating.css" rel="stylesheet" />
+    <!-- Modal -->
+    <div class="modal fade" id="dg" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-fullscreen modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="container" style="color: black">
+                        <h3>Đánh giá công ty <b class="text-danger">@Model.employer_company</b></h3>
+                        <p>
+                            Bạn chỉ mất 1 phút để hoàn thành bảng đánh giá này. <br />
+                            Ý kiến của bạn sẽ giúp ích rất nhiều cho cộng đồng QuickJob đang tìm việc.
+                        </p>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-bar-rating/1.2.2/jquery.barrating.min.js"></script>
+                        <form action="@Url.Action("Rating","View")" method="post">
+                            <input type="hidden" value="@Model.user_id" name="idem" />
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="box box-blue box-example-square" style="height: 120px">
+                                        <div class="box-header">Đánh giá tổng hợp</div>
+                                        <div class="box-body">
+                                            <select id="example-square" name="rating_sum" autocomplete="off">
+                                                <option value=""></option>
+                                                <option value="1">1</option>
+                                                <option value="2">2</option>
+                                                <option value="3">3</option>
+                                                <option value="4">4</option>
+                                                <option value="5">5</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Tiêu đề:</b>
+                                    <input name="rating_title" style="background-color: white; color: black" type="text" placeholder="Tiêu đề: Tóm tắt đánh giá của bạn! Ví dụ: Xếp tốt,..." class="form-control" />
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Điều bạn thích:</b>
+                                    <textarea style="background-color: white; color: black" class="form-control" name="rating_like" placeholder="Điều gì làm công ty này nổi bật? Ví dụ: &quot;Bãi đậu xe rộng rãi. Văn phòng đẹp tất cả đều được trang bị hàng &quot; (Macbook, iMac)"></textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Điều công ty cần cải thiện</b>
+                                    <textarea style="background-color: white; color: black" class="form-control" name="rating_improve" placeholder="Bạn nghĩ công ty cần cải thiện điều gì? Ví dụ: &quot;Khi có dự án thì OT hơi nhiều, áp lực, nên cần cải thiện khâu estimation. Họp và báo cáo nhiều gây mất thời gian, nên giảm các việc này."></textarea>
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Lương thưởng & phúc lợi:</b>
+                                    <div class="inline fields">
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_ltpl" value="5" checked="" tabindex="0" class="hidden">
+                                                <label>Tuyệt vời</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_ltpl" value="4" tabindex="0" class="hidden">
+                                                <label>Rất tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_ltpl" value="3" tabindex="0" class="hidden">
+                                                <label>Tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_ltpl" value="2" tabindex="0" class="hidden">
+                                                <label>Cần cải thiện nhiều</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_ltpl" value="1" tabindex="0" class="hidden">
+                                                <label>Tệ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Đào tạo & học hỏi</b>
+                                    <div class="inline fields">
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_dthh" value="5" checked="" tabindex="0" class="hidden">
+                                                <label>Tuyệt vời</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_dthh" value="4" tabindex="0" class="hidden">
+                                                <label>Rất tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_dthh" value="3" tabindex="0" class="hidden">
+                                                <label>Tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_dthh" value="2" tabindex="0" class="hidden">
+                                                <label>Cần cải thiện nhiều</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_dthh" value="1" tabindex="0" class="hidden">
+                                                <label>Tệ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Sự quan tâm đến nhân viên</b>
+                                    <div class="inline fields">
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_sqtdnv" value="5" checked="" tabindex="0" class="hidden">
+                                                <label>Tuyệt vời</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_sqtdnv" value="4" tabindex="0" class="hidden">
+                                                <label>Rất tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_sqtdnv" value="3" tabindex="0" class="hidden">
+                                                <label>Tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_sqtdnv" value="2" tabindex="0" class="hidden">
+                                                <label>Cần cải thiện nhiều</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_sqtdnv" value="1" tabindex="0" class="hidden">
+                                                <label>Tệ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Văn hoá công ty</b>
+                                    <div class="inline fields">
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vhct" value="5" checked="" tabindex="0" class="hidden">
+                                                <label>Tuyệt vời</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vhct" value="4" tabindex="0" class="hidden">
+                                                <label>Rất tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vhct" value="3" tabindex="0" class="hidden">
+                                                <label>Tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vhct" value="2" tabindex="0" class="hidden">
+                                                <label>Cần cải thiện nhiều</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vhct" value="1" tabindex="0" class="hidden">
+                                                <label>Tệ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="col-md-12">
+                                    <br />
+                                    <b>Văn phòng làm việc</b>
+                                    <div class="inline fields">
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vplv" value="5" checked="" tabindex="0" class="hidden">
+                                                <label>Tuyệt vời</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vplv" value="4" tabindex="0" class="hidden">
+                                                <label>Rất tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vplv" value="3" tabindex="0" class="hidden">
+                                                <label>Tốt</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vplv" value="2" tabindex="0" class="hidden">
+                                                <label>Cần cải thiện nhiều</label>
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <div class="ui radio checkbox">
+                                                <input type="radio" name="rating_vplv" value="1" tabindex="0" class="hidden">
+                                                <label>Tệ</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12">
+                                        <br />
+                                        <b>Bạn có muốn giới thiệu công ty này đến bạn bè của mình?</b>
+                                        <div class="inline fields">
+                                            <div class="field">
+                                                <div class="ui radio checkbox">
+                                                    <input type="radio" name="rating_intro" value="true" checked="" tabindex="0" class="hidden">
+                                                    <label>Sẽ giới thiệu</label>
+                                                </div>
+                                            </div>
+                                            <div class="field">
+                                                <div class="ui radio checkbox">
+                                                    <input type="radio" name="rating_intro" value="false" tabindex="0" class="hidden">
+                                                    <label>Không</label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <hr />
+                                        <button class="btn btn-danger" type="submit">Đánh giá</button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            function ratingEnable() {
+                $('#example-square').barrating('show', {
+                    theme: 'bars-square',
+                    showValues: true,
+                    showSelectedRating: false
+                });
+
+            }
+
+            ratingEnable();
+
+        });
+        $('.ui.radio.checkbox')
+            .checkbox()
+            ;
+    </script>
+}

@@ -37,10 +37,22 @@ namespace QuickJob.Controllers
                fakeid = n.cv_fakeid,
                title = n.cv_title,
                themeid = (int)n.theme_id,
-               point = n.cv_point
+               point = n.cv_point,
+               key = n.cv_fakeid.Substring(0, 6),
+               pass = n.cv_pass
            }).ToList();
 
             return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ChangeKey(string pass, int ? id)
+        {
+            Cv cv = db.Cvs.Find(id);
+            cv.cv_pass = pass;
+            cv.cv_submitkey = 3;
+            db.SaveChanges();
+            return Redirect("/Cvs/IndexCvs");
         }
         public JsonResult JsonIndexThemes()
         {
@@ -210,7 +222,7 @@ namespace QuickJob.Controllers
             else if(cV.cv_point >= 65)
             {
                 cV.cv_active = 1;
-                cV.cv_option = false;
+                cV.cv_option = true;
             }
             else
             {
@@ -222,6 +234,7 @@ namespace QuickJob.Controllers
             cV.cv_fakeid = cV1.cv_fakeid;
             cV.cv_deadline = DateTime.Now.AddMonths(1);
             cV.cv_view = cV1.cv_view;
+            cV.cv_bg = "darkcyan";
 
             cV.cv_p = 1;
 
@@ -400,6 +413,48 @@ namespace QuickJob.Controllers
         public PartialViewResult Details(int ? id)
         {
             return PartialView(db.Cvs.Find(id));
+        }
+        //Tải nhanh CV
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult ModalKey(string key, string pass)
+        {
+            Cv cv = db.Cvs.SingleOrDefault(n => n.cv_fakeid.Substring(0, 6) == key && n.cv_pass == pass);
+            if(cv != null)
+            {
+                Session["key"] = cv.cv_fakeid; ;
+                return RedirectToAction("DetailsKey");
+            }
+            else
+            {
+                TempData["note"] = "Sai mật khẩu hoặc key";
+            }
+            return View();
+        }
+        public PartialViewResult DetailsKey()
+        {
+            if (Session["key"] == null)
+            {
+                Response.Redirect("");
+            }
+
+            var idkey = Session["key"].ToString();
+            Cv cv = db.Cvs.SingleOrDefault(n => n.cv_fakeid == idkey);
+            if (cv.cv_fakeid != idkey)
+            {
+                Response.Redirect("");
+            }
+
+            
+
+            return PartialView(cv);
+        }
+        public JsonResult Submitkey(string key)
+        {
+            Cv cv = db.Cvs.SingleOrDefault(n => n.cv_fakeid == key);
+            cv.cv_submitkey = cv.cv_submitkey - 1;
+            db.SaveChanges();
+            return Json(null);
         }
     }
 }
